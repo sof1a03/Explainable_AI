@@ -2,8 +2,9 @@
 Explainable AI (INFOMXAI)
 
 -----
-Description of the DATASET
-# Dowload: 
+# Description of the DATASET
+
+## Dowload: 
 https://www.kaggle.com/datasets/ashery/chexpert/data
 
 # Columns:
