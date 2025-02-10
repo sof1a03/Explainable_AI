@@ -34,8 +34,8 @@ https://www.kaggle.com/datasets/ashery/chexpert/data
 ---
 
 ## Pathology Labels (1, 0, or -1)
-- **Description:** Binary or uncertain labels for the presence of various chest pathologies or conditions.  
-- **Type:** Categorical (`1` for positive, `0` for negative, `-1` for uncertain)  
+Binary or uncertain labels for the presence of various chest pathologies or conditions.  
+**Type:** Categorical (`1` for positive, `0` for negative, `-1` for uncertain)  
 
 - **No Finding**  
   - **Description:** Indicates whether the X-ray shows no observable abnormalities.  
