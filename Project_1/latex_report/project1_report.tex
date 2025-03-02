@@ -1,3 +1,4 @@
+% compile: pdflatex path_to_file/project1_report.tex
 \documentclass{midl} % Include author names
 
 % The following packages will be automatically loaded:
@@ -17,7 +18,7 @@
 \jmlrvolume{-- Under Review}
 \editors{Under Review for MIDL 2025}
 
-\title[Short Title]{Full Title of Article}
+\title[Explainable AI in Radiology]{Project 1 - Explainable AI in Radiology}
 
  % Use \Name{Author Name} to specify the name.
  % If the surname contains spaces, enclose the surname
@@ -26,85 +27,41 @@
  % If the first letter in the forenames is a diacritic
  % enclose the diacritic in braces, e.g. \Name{{\'E}louise Smith}
 
- % Two authors with the same address
- % \midlauthor{\Name{Author Name1} \Email{abc@sample.edu}\and
- %  \Name{Author Name2} \Email{xyz@sample.edu}\\
- %  \addr Address}
-
- % Three or more authors with the same address:
- % \midlauthor{\Name{Author Name1} \Email{an1@sample.edu}\\
+ \midlauthor{\Name{Author Name1} \Email{l.l.feiler@uu.students.nl}\\
  %  \Name{Author Name2} \Email{an2@sample.edu}\\
  %  \Name{Author Name3} \Email{an3@sample.edu}\\
- %  \addr Address}
+ \addr Utrecht University}
 
+\footnotetext[1]{All authors contributed equally}
 
-% Authors with different addresses:
-% \midlauthor{\Name{Author Name1} \Email{abc@sample.edu}\\
-% \addr Address 1
-% \AND
-% \Name{Author Name2} \Email{xyz@sample.edu}\\
-% \addr Address 2
-% }
-
-%\footnotetext[1]{Contributed equally}
-
-% More complicate cases, e.g. with dual affiliations and joint authorship
-\midlauthor{\Name{Author Name1\midljointauthortext{Contributed equally}\nametag{$^{1,2}$}} \orcid{1111-2222-3333-4444} \Email{abc@sample.edu}\\
-\addr $^{1}$ Address 1 \\
-\addr $^{2}$ Address 2 \AND
-\Name{Author Name2\midlotherjointauthor\nametag{$^{1}$}} \Email{xyz@sample.edu}\\
-\Name{Author Name3\nametag{$^{2}$}} \Email{alphabeta@example.edu}\\
-\Name{Author Name4\midljointauthortext{Contributed equally}\nametag{$^{3}$}} \Email{uvw@foo.ac.uk}\\
-\addr $^{3}$ Address 3 \AND
-\Name{Author Name5\midlotherjointauthor\nametag{$^{4}$}} \Email{fgh@bar.com}\\
-\addr $^{4}$ Address 4
-}
 
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
-This is a great paper and it has a concise abstract.
+This is a great paper, and it has a concise abstract.
 \end{abstract}
 
 \begin{keywords}
 List of keywords, comma separated.
 \end{keywords}
 
-\section{Introduction}
+\section{Introduction}\label{sec:introduction}
+Machine learning has become a powerful tool for solving complex problems in various domains and is increasingly integrated into different applications.
+However, many of these models act as black boxes with limited knowledge of how they work and what led to a certain output\cite{ahmed2022explainable} .
+Explainable AI (XAI) aims to improve the understanding of these systems by making the decision process more transparent.
+Healthcare, specifically radiology imaging, is one area with increased usage of AI systems to support diagnostic and treatment decisions\cite{e2024evaluating} .
+To ensure trust in these systems, especially when crucial medical decisions must be made with their help, it becomes increasingly important to not only produce efficient and accurate models but also explainable ones to increase trust in the model’s outputs.
+Many AI tools in medicine are meant to support medical personnel in their decision processes and decrease their workload.
+Explainable models will increase the personnel's confidence in the decisions made by the system and let them detect any potential errors.
+One of the current main applications for AI in medicine is the analysis of X-ray images to detect various illnesses, most often utilized for bone or lung diseases\cite{miro2022evaluating} .
+Chest Radiography (CXR) images are one example of this technique.
+With many illnesses affecting the chest area and lungs, accurate systems are vital.
+They have become more relevant since the COVID-19 outbreak\cite{miro2022evaluating} , and people have not only realized how important good systems are but also the importance of being able to understand the system's decision through explainability.
+In this paper we will present the application of machine learning to X-ray images for predicting pleural effusion (a buildup of excess fluid in the lungs) and two explanation methods: Saliency maps and Cosine Similarity.
+Additionally, these methods are evaluated to verify their performance using Quantus\cite{hedstrom2023quantus} and (-----).
 
-This is where the content of your paper goes.  Some random notes:
-\begin{itemize}
-\item You should use \LaTeX \cite{Lamport:Book:1989}.
-\item JMLR/PMLR uses natbib for references. For simplicity, here, \verb|\cite|  defaults to
-  parenthetical citations, i.e. \verb|\citep|. You can of course also
-  use \verb|\citet| for textual citations.
-\item You should follow the guidelines provided by the conference.
-\item Read through the JMLR template documentation for specific \LaTeX
-  usage questions.
-\item Note that the JMLR template provides many handy functionalities
-such as \verb|\figureref| to refer to a figure,
-e.g. \figureref{fig:example},  \verb|\tableref| to refer to a table,
-e.g. \tableref{tab:example} and \verb|\equationref| to refer to an equation,
-e.g. \equationref{eq:example}.
-\end{itemize}
-
-\begin{table}[htbp]
- % The first argument is the label.
- % The caption goes in the second argument, and the table contents
- % go in the third argument.
-\floatconts
-  {tab:example}%
-  {\caption{An Example Table}}%
-  {\begin{tabular}{ll}
-  \bfseries Dataset & \bfseries Result\\
-  Data1 & 0.12345\\
-  Data2 & 0.67890\\
-  Data3 & 0.54321\\
-  Data4 & 0.09876
-  \end{tabular}}
-\end{table}
 
 \begin{figure}[htbp]
  % Caption and label go in the first argument and the figure contents
