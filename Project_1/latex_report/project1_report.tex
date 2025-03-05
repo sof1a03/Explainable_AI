@@ -26,10 +26,10 @@
  % if the name has a "von" part, e.g \Name{Jane {de Winter}}.
  % If the first letter in the forenames is a diacritic
  % enclose the diacritic in braces, e.g. \Name{{\'E}louise Smith}
-
- \midlauthor{\Name{Author Name1} \Email{l.l.feiler@uu.students.nl}\\
- %  \Name{Author Name2} \Email{an2@sample.edu}\\
- %  \Name{Author Name3} \Email{an3@sample.edu}\\
+ \midlauthor{\Name{Lena Feiler} \Email{l.l.feiler@uu.students.nl}\\
+   \Name{Sofia Bianchini} \Email{s.bianchini@students.uu.nl}\\
+   \Name{Arda Adali} \Email{a.c.adali@students.uu.nl}\\
+   \Name{Kerem Dogan} \Email{k.dogan@students.uu.nl}\\
  \addr Utrecht University}
 
 \footnotetext[1]{All authors contributed equally}
@@ -44,7 +44,7 @@ This is a great paper, and it has a concise abstract.
 \end{abstract}
 
 \begin{keywords}
-List of keywords, comma separated.
+Chest X-Ray, Pleural Effusion, Explainable AI, Saliency maps, GradCAM, Example-base explanations, Cosine Similarity
 \end{keywords}
 
 \section{Introduction}\label{sec:introduction}
@@ -55,7 +55,7 @@ Healthcare, specifically radiology imaging, is one area with increased usage of 
 To ensure trust in these systems, especially when crucial medical decisions must be made with their help, it becomes increasingly important to not only produce efficient and accurate models but also explainable ones to increase trust in the model’s outputs.
 Many AI tools in medicine are meant to support medical personnel in their decision processes and decrease their workload.
 Explainable models will increase the personnel's confidence in the decisions made by the system and let them detect any potential errors.
-One of the current main applications for AI in medicine is the analysis of X-ray images to detect various illnesses, most often utilized for bone or lung diseases\cite{miro2022evaluating} .
+One of the current main applications for AI in medicine is the analysis of X-ray images to detect various illnesses, most often utilized for bone or lung diseases \cite{miro2022evaluating} .
 Chest Radiography (CXR) images are one example of this technique.
 With many illnesses affecting the chest area and lungs, accurate systems are vital.
 They have become more relevant since the COVID-19 outbreak\cite{miro2022evaluating} , and people have not only realized how important good systems are but also the importance of being able to understand the system's decision through explainability.
@@ -63,31 +63,33 @@ In this paper we will present the application of machine learning to X-ray image
 Additionally, these methods are evaluated to verify their performance using Quantus\cite{hedstrom2023quantus} and (-----).
 
 
-\begin{figure}[htbp]
+\section{Methods \& Materials}\label{sec:methods-materials}
+\subsection{Model}\label{subsec:model}
+
+\subsection{Saliency Maps}\label{subsec:saliency-maps}
+
+\subsection{Example-based Explanations}\label{subsec:example-based-explanations}
+
+
+\section{Results \& Discussion}\label{sec:results-discussion}
+\subsection{Saliency Maps}\label{subsec:res:saliency-maps}
+
+\subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
+
+\section{Conclusion}\label{sec:conclusion}
+
+
+
+%\begin{figure}[htbp]
  % Caption and label go in the first argument and the figure contents
  % go in the second argument
-\floatconts
-  {fig:example}
-  {\caption{Example Image}}
-  {\includegraphics[width=0.5\linewidth]{example-image}}
-\end{figure}
+%\floatconts
+%  {fig:example}
+%  {\caption{Example Image}}
+%  {\includegraphics[width=0.5\linewidth]{example-image}}
+%\end{figure}
 
-\begin{algorithm2e}
-\caption{Computing Net Activation}
-\label{alg:net}
- % older versions of algorithm2e have \dontprintsemicolon instead
- % of the following:
- %\DontPrintSemicolon
- % older versions of algorithm2e have \linesnumbered instead of the
- % following:
- %\LinesNumbered
-\KwIn{$x_1, \ldots, x_n, w_1, \ldots, w_n$}
-\KwOut{$y$, the net activation}
-$y\leftarrow 0$\;
-\For{$i\leftarrow 1$ \KwTo $n$}{
-  $y \leftarrow y + w_i*x_i$\;
-}
-\end{algorithm2e}
+
 
 % Acknowledgments---Will not appear in anonymized version
 \midlacknowledgments{We thank a bunch of people.}
