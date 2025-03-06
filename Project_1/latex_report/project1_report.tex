@@ -32,8 +32,6 @@
    \Name{Kerem Dogan} \Email{k.dogan@students.uu.nl}\\
  \addr Utrecht University}
 
-\footnotetext[1]{All authors contributed equally}
-
 
 \begin{document}
 
@@ -66,7 +64,12 @@ Additionally, these methods are evaluated to verify their performance using Quan
 \section{Methods \& Materials}\label{sec:methods-materials}
 \subsection{Model}\label{subsec:model}
 
-\subsection{Saliency Maps}\label{subsec:saliency-maps}
+\subsection{Saliency Map-based Explanations}\label{subsec:saliency-maps}
+One form of visual explanation for deep learning models is saliency map-based explanations.
+In this report, we specifically explore the use of Gradient-weighted Class Activation Mapping (Grad-CAM), first introduced by Selvaraju et al., which uses gradients in the last convolutional layer of the CNN and global-average-pooling to determine each neuron’s importance to the final prediction\cite{selvaraju2017grad}, and can be used to generate heatmaps to highlight the critical information in the image.
+Grad-CAM has often been used in medical image analysis with good results, for example for classifying tuberculosis lung zones\cite{devasia2023deep}, identifying Covid-19 in chest X-rays\cite{khan2022covid} and pneumonia\cite{du2023classification}.
+Additionally, we will use Quantus\cite{hedstrom2023quantus}, a toolkit for evaluating deep learning explanations, to evaluate the quality of the generated explanations.
+Specifically, we will be using the following metrics: Pixel-Flipping\cite{bach2015pixel} for Faithfulness, Local Lipschitz Estimate\cite{alvarez2018towards} for Robustness, Model Parameter Randomisation test\cite{adebayo2018sanity} for Randomisation, Relevance Mass Accuracy\cite{Arras_2022} for Localisation, Complexity\cite{bhatt2020evaluating} for Complexity
 
 \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
 
