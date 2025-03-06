@@ -66,17 +66,20 @@ Additionally, these methods are evaluated to verify their performance using Quan
 
 The dataset used for this study was a downsized version of the CheXpert dataset \texit{cite}, which contains both frontal and lateral chest X-rays. Among the available pathology labels, particular attention was given to the \emph{Pleural Effusion} label, which served as the target for classification.
 
-A series of preprocessing steps were applied to prepare the dataset for model training. Following is the pipeline that it was followed.
+A series of preprocessing steps were applied to prepare the dataset for model training.
+Following is the pipeline that it was followed.
 \begin{enumerate}
 \item The dataset was filtered to have only frontal chest X-ray images, excluding lateral views to ensure consistency.
 
-\item All images were resized to a uniform resolution of $(224 \times 224)$ pixels, to facilitate compatibility with common CNN architectures. Moreover, pixel values were normalized to the range \([0, 1]\), ensuring consistent input scaling.
+\item All images were resized to a uniform resolution of $(224 \times 224)$ pixels, to facilitate compatibility with common CNN architectures.
+Moreover, pixel values were normalized to the range \([0, 1]\), ensuring consistent input scaling.
 
 \item Images where the \emph{Pleural Effusion} label was either missing or marked as uncertain were removed in order to improve reliability.
 
 \item Since the number of images with positive Pleural Effusion labels was considerably lower than the number of negatives, class weights were computed based on the relative frequencies of each class. \footnote{These weights were later used during model training to help mitigate the imbalance.}
 
-\item The dataset was split into training and validation subsets. Specifically, 80\% of the images were allocated to the training set, while the remaining 20\% formed the validation set.
+\item The dataset was split into training and validation subsets.
+Specifically, 80\% of the images were allocated to the training set, while the remaining 20\% formed the validation set.
 
 \item Since the original chest X-rays were grayscale, each image was duplicated across three channels to match the expected input format for models pretrained on ImageNet, which typically expect 3-channel RGB images.
 \end{enumerate}
@@ -106,9 +109,43 @@ Specifically, we will be using the following metrics: Pixel-Flipping\cite{bach20
 
 
 \section{Results \& Discussion}\label{sec:results-discussion}
- \label{subsec:res:saliency-maps}
+In the subsequent sections we will present and discuss the results gathered from testing the model and explanation methods described in section\ref{sec:methods-materials} on a predefined set of test images.
 
-\section{Model Training and Evaluation} \label{subsec:res:saliency-maps}
+\subsection*{Saliency Maps}\label{subsec:res:saliency-maps}
+The GradCAM explanations can be seen in figure\ref{fig:gradcam}.
+As seen in the colour, the most important regions in the image, as determined by the model, are portrait in seismic colours: red, then white and lastly blue.
+The bounding boxes on the explanation boxes circle the important parts of the image, that the explanation should focus on.
+As seen in the five test images, the given explanations always highlight some part of the bounding box, but in most cases also falsely highlights parts of the X-ray image outside the box.
+
+\begin{figure}[h] \caption{GradCAM Explanations}
+\label{fig:gradcam}
+\centering
+\includegraphics[width=\textwidth]{grad_cam}
+\end{figure}
+
+Additionally, in table\ref{tab:quantus} we can see the mean and standard deviation of the quantus evaluations metrics on the test images.
+The complexity metric demonstrates how easily understandable the explanations are and the value of $9.3$ is as expected for a complicated model such as a CNN\@.
+For the robustness measure, a low value, such as $0.032051$ indicates a very robust model, that is stable to slight perturbations of the given input.
+Lastly, the faithfulness measure shows ...
+
+\begin{table}[h!]
+\centering
+\caption{Quantus: Explanation Evaluation}
+\label{tab:quantus}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{} & \textbf{Mean} & \textbf{Standard deviation} \\
+\hline
+Complexity  & 9.360562 & 0.241967 \\
+Local Lipschitz Estimate  & 0.032051 & 0.031284\\
+Pixel Flipping  & 1 & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+\section{Model Training and Evaluation}
 
 During the training process, the DenseNet169 model demonstrated steady improvement in both training accuracy and training loss across epochs, indicating that the model was progressively learning useful features from the training data. However, the validation accuracy fluctuated across epochs, suggesting some degree of overfitting (Table~\ref{tab:training_stats}). 
 
@@ -146,8 +183,6 @@ To statistically assess the significance of these results, a binomial test was c
 \textit{explain better the test and the threshold}
 The resulting p-value of $2.03 \times 10^{-17}$ strongly supports the conclusion that the model’s performance is significantly better than chance.
 
-
-\subsection*{Saliency Maps}\label{subsec:res:saliency-maps}
 
 \subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
