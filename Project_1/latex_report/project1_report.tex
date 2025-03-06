@@ -62,7 +62,39 @@ Additionally, these methods are evaluated to verify their performance using Quan
 
 
 \section{Methods \& Materials}\label{sec:methods-materials}
+\subsection*{Dataset and Preprocessing}
+
+The dataset used for this study was a downsized version of the CheXpert dataset \texit{cite}, which contains both frontal and lateral chest X-rays. Among the available pathology labels, particular attention was given to the \emph{Pleural Effusion} label, which served as the target for classification.
+
+A series of preprocessing steps were applied to prepare the dataset for model training. Following is the pipeline that it was followed.
+\begin{enumerate}
+\item The dataset was filtered to have only frontal chest X-ray images, excluding lateral views to ensure consistency.
+
+\item All images were resized to a uniform resolution of $(224 \times 224)$ pixels, to facilitate compatibility with common CNN architectures. Moreover, pixel values were normalized to the range \([0, 1]\), ensuring consistent input scaling.
+
+\item Images where the \emph{Pleural Effusion} label was either missing or marked as uncertain were removed in order to improve reliability.
+
+\item Since the number of images with positive Pleural Effusion labels was considerably lower than the number of negatives, class weights were computed based on the relative frequencies of each class. \footnote{These weights were later used during model training to help mitigate the imbalance.}
+
+\item The dataset was split into training and validation subsets. Specifically, 80\% of the images were allocated to the training set, while the remaining 20\% formed the validation set.
+
+\item Since the original chest X-rays were grayscale, each image was duplicated across three channels to match the expected input format for models pretrained on ImageNet, which typically expect 3-channel RGB images.
+\end{enumerate}
+
 \subsection{Model}\label{subsec:model}
+\section{Model Architecture: DenseNet169}
+
+To develop the classification model for detecting \emph{Pleural Effusion}, it was adopted a deep learning approach using \textbf{DenseNet169}, a convolutional neural network (CNN) architecture that belongs to the DenseNet family, originally introduced by Huang et al. in 2017 \texit{cite}.
+
+DenseNet, short for \emph{Densely Connected Convolutional Network}, is distinguished by its unique connectivity pattern: every layer is directly connected to every other layer in a feed-forward fashion. Specifically, the output feature maps of each layer are concatenated with the function of all preceding layers and passed as input to subsequent ones. This dense connectivity pattern offers several advantages, such as: feature propagation and efficient parameter use.
+
+DenseNet169 is a specific configuration within the DenseNet family, consisting of 169 layers, including convolutional layers, batch normalization layers, and ReLU activation functions, grouped into several densely connected blocks. Between these blocks are \emph{transition layers}, which downsample the spatial dimensions using pooling operations, while also reducing the number of channels to improve computational efficiency.
+
+DenseNet169 strikes a balance between depth and computational complexity, making it particularly well-suited for medical imaging tasks, where subtle patterns often require deep networks with strong feature propagation capabilities.
+
+The model was initialized with pre-trained weights from the ImageNet dataset. This pre training provides the model with a rich set of low- and mid-level visual features (such as edges, textures, and shapes), which are also relevant for analyzing medical images.
+During the initial stages of training, the pre-trained layers were frozen to preserve these general features. Fine-tuning was then performed on the higher layers, allowing the network to adapt specifically to the characteristics of chest X-rays and the task of detecting \emph{Pleural Effusion}.
+
 
 \subsection{Saliency Map-based Explanations}\label{subsec:saliency-maps}
 One form of visual explanation for deep learning models is saliency map-based explanations.
@@ -75,7 +107,48 @@ Specifically, we will be using the following metrics: Pixel-Flipping\cite{bach20
 
 
 \section{Results \& Discussion}\label{sec:results-discussion}
-\subsection{Saliency Maps}\label{subsec:res:saliency-maps}
+ \label{subsec:res:saliency-maps}
+
+\section{Model Training and Evaluation} \label{subsec:res:saliency-maps}
+
+During the training process, the DenseNet169 model demonstrated steady improvement in both training accuracy and training loss across epochs, indicating that the model was progressively learning useful features from the training data. However, the validation accuracy fluctuated across epochs, suggesting some degree of overfitting (Table~\ref{tab:training_stats}). 
+
+\begin{table}[h!]
+\centering
+\caption{Training and Validation Performance Per Epoch}
+\label{tab:training_stats}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{Epoch} & \textbf{Training Accuracy} & \textbf{Training Loss} & \textbf{Validation Accuracy} & \textbf{Validation Loss} \\
+\hline
+1  & 80.40\% & 0.4420 & 83.85\% & 0.3845 \\
+2  & 83.57\% & 0.3936 & 85.59\% & 0.3497 \\
+3  & 83.97\% & 0.3836 & 84.89\% & 0.3601 \\
+4  & 84.39\% & 0.3747 & 82.55\% & 0.3992 \\
+5  & 84.51\% & 0.3697 & 80.96\% & 0.4323 \\
+6  & 84.76\% & 0.3613 & 85.83\% & 0.3470 \\
+7  & 84.99\% & 0.3581 & 85.09\% & 0.3595 \\
+8  & 85.37\% & 0.3494 & 85.48\% & 0.3530 \\
+9  & 85.65\% & 0.3436 & 82.36\% & 0.4055 \\
+10 & 85.89\% & 0.3364 & 84.75\% & 0.3746 \\
+\hline
+\end{tabular}
+\end{table}
+
+Despite these fluctuations in validation accuracy, the final trained model demonstrated \textbf{reasonable performance} on the held-out test set. 
+
+Specifically, the model achieved an \textbf{overall accuracy} of 79.21\%. In terms of class-specific performance, the model obtained a precision of 63.41\% and a recall of 81.25\%, reflecting the model’s relatively good ability to correctly identify positive \emph{Pleural Effusion} cases.
+
+To furthermore a confusion matrix was computed (Image \ref{}). 
+
+The F1-score reached 71.23\%, indicating a balanced trade-off between precision and recall. Furthermore, the model achieved a ROC AUC score of 84.96\%, confirming good overall discriminatory power in distinguishing between positive and negative cases.
+
+To statistically assess the significance of these results, a binomial test was conducted. 
+\textit{explain better the test and the threshold}
+The resulting p-value of $2.03 \times 10^{-17}$ strongly supports the conclusion that the model’s performance is significantly better than chance.
+
+
+\subsection*{Saliency Maps}\label{subsec:res:saliency-maps}
 
 \subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
