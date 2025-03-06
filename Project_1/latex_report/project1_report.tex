@@ -103,7 +103,9 @@ Additionally, we will use Quantus\cite{hedstrom2023quantus}, a toolkit for evalu
 Specifically, we will be using the following metrics: Pixel-Flipping\cite{bach2015pixel} for Faithfulness, Local Lipschitz Estimate\cite{alvarez2018towards} for Robustness, Model Parameter Randomisation test\cite{adebayo2018sanity} for Randomisation, Relevance Mass Accuracy\cite{Arras_2022} for Localisation, Complexity\cite{bhatt2020evaluating} for Complexity
 
 \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
-
+Another form of explanation is to compare similarities between images. For this step rather than using the last layer of DenseNet we used the global average pooling where each feature is noted as a single number and therefore, becoming better at feature extraction.
+With this, we produce feature vectors for each image and compare these feature vectors using cosine similarity.  So if images are alike they would return a higher similarity score and conversely, if they are different they would have more diverging feature vectors which would lead to a lower similarity score.
+After collecting all the similarity scores for the images a ranking is created. % Will continue later on also improve the writing  
 
 \section{Results \& Discussion}\label{sec:results-discussion}
  \label{subsec:res:saliency-maps}
@@ -148,7 +150,10 @@ The resulting p-value of $2.03 \times 10^{-17}$ strongly supports the conclusion
 
 
 \subsection*{Saliency Maps}\label{subsec:res:saliency-maps}
+To gain insight about where the model focuses in each test image a Grad-CAM saliency map is generated for the image. In the majority of the test cases, the heatmaps concentrate on the lower lung areas which are associated with Pleural Effusion. These results suggest that the model focuses on clinically accurate areas of the lung.
+However, there are some cases where the model highlights areas unrelated to Pleural Effusion, which indicates that the model relies on uninformative features to classify Pleural Effusion cases. 
 
+The quality of the saliency maps was tested on five different metrics from the Quantus library. %Will fill later on 
 \subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
 \section{Conclusion}\label{sec:conclusion}
