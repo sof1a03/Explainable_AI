@@ -105,10 +105,15 @@ Grad-CAM has often been used in medical image analysis with good results, for ex
 Additionally, we will use Quantus\cite{hedstrom2023quantus}, a toolkit for evaluating deep learning explanations, to evaluate the quality of the generated explanations.
 Specifically, we will be using the following metrics: Pixel-Flipping\cite{bach2015pixel} for Faithfulness, Local Lipschitz Estimate\cite{alvarez2018towards} for Robustness, Model Parameter Randomisation test\cite{adebayo2018sanity} for Randomisation, Relevance Mass Accuracy\cite{Arras_2022} for Localisation, Complexity\cite{bhatt2020evaluating} for Complexity
 
+% \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
+% Another form of explanation is to compare similarities between images. For this step rather than using the last layer of DenseNet we used the global average pooling where each feature is noted as a single number and therefore, becoming better at feature extraction.
+% With this, we produce feature vectors for each image and compare these feature vectors using cosine similarity.  So if images are alike they would return a higher similarity score and conversely, if they are different they would have more diverging feature vectors which would lead to a lower similarity score.
+% After collecting all the similarity scores for the images a ranking is created. Finally the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relavency of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a proffesional.
+
 \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
-Another form of explanation is to compare similarities between images. For this step rather than using the last layer of DenseNet we used the global average pooling where each feature is noted as a single number and therefore, becoming better at feature extraction.
-With this, we produce feature vectors for each image and compare these feature vectors using cosine similarity.  So if images are alike they would return a higher similarity score and conversely, if they are different they would have more diverging feature vectors which would lead to a lower similarity score.
-After collecting all the similarity scores for the images a ranking is created. Finally the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relavency of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a proffesional.
+An in depth evaluation of the similarity of the test images classiffied can be insightful for explaining the reasoning of the model. The feature emeddings of an image created by the model are extracted from the last pooling layer. These features contain enough information to classify the images and thus should possess the information to compare their similarities. In order to test if this is the case for our model, ten images that were ranked by scientiests based on their expert opinion about their similarity to a ground truth image, are compared to the ranking of the same ten images based on the similarity of the features created by the model. The cosine similarity is widely used for vector similarity calculation, it compares two vectors by their orientation and magnitudes. 
+
+After the ten images are ranked by their cosine similarity to the ground truth, the results are evaluated by comparing these rankings with the rankings by the scientists using the NDCG score. The NDCG score is a metric used for evaluating the relevance of rankings; it works by assigning relevancy scores to the ranking (in our case scores ranged from 5.5 to 1) and calculated the discounted gain from the scores and normalises it based on the ideal gain. In this case ideal gain is the ranking of the scientist.  
 
 \section{Results \& Discussion}\label{sec:results-discussion}
 In the subsequent sections we will present and discuss the results gathered from testing the model and explanation methods described in section\ref{sec:methods-materials} on a predefined set of test images.
@@ -195,6 +200,27 @@ The quality of the saliency maps was tested on five different metrics from the Q
 =======
 >>>>>>> aaf8775ed9a1d2a8c56a4ee7a6f5a38fd5705df3
 \subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
+
+The results indicates an alignment between the scientists and the cosine similarity rankings. The high NDCG score of 0.96 means that features of the images extracted by the model exhibit relevant information for accurate classification that correlates the opinion of the scientist. While the line plot~\ref{fig:line_example} reveals some mismatches in rankings, the overall similarity remains consistent; the cosine similarity score of the images in the same ranking spot in different lines tends to have close values. Especially in the first half of the rankings compared to the second half which, given the discounted nature of the evaluation metric, affect the high NDCG score. The heatmap plot~\ref{fig:heat_example}, better visualises that indeed both rankings have the same five images in their top six images in slightly different order.  
+
+\begin{figure}[htbp]
+ Caption and label go in the first argument and the figure contents
+ go in the second argument
+\floatconts
+ {fig:line_example}
+ {\caption{Example Image}}
+ {\includegraphics[width=0.5\linewidth]{example-image}}
+\end{figure}
+
+\begin{figure}[htbp]
+ Caption and label go in the first argument and the figure contents
+ go in the second argument
+\floatconts
+ {fig:heat_example}
+ {\caption{Example Image}}
+ {\includegraphics[width=0.5\linewidth]{example-image}}
+\end{figure}
+
 
 \section{Conclusion}\label{sec:conclusion}
 The understanding of a deep neural network decision-making process is important to make an explainable system. In this study, multiple methods are used to check the explainability of the model we created.
