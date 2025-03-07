@@ -204,20 +204,16 @@ The quality of the saliency maps was tested on five different metrics from the Q
 The results indicates an alignment between the scientists and the cosine similarity rankings. The high NDCG score of 0.96 means that features of the images extracted by the model exhibit relevant information for accurate classification that correlates the opinion of the scientist. While the line plot~\ref{fig:line_example} reveals some mismatches in rankings, the overall similarity remains consistent; the cosine similarity score of the images in the same ranking spot in different lines tends to have close values. Especially in the first half of the rankings compared to the second half which, given the discounted nature of the evaluation metric, affect the high NDCG score. The heatmap plot~\ref{fig:heat_example}, better visualises that indeed both rankings have the same five images in their top six images in slightly different order.  
 
 \begin{figure}[htbp]
- Caption and label go in the first argument and the figure contents
- go in the second argument
 \floatconts
  {fig:line_example}
- {\caption{Example Image}}
+ {\caption{The line plot of images ranked by the scientists and cosine similarity. The x-axis is the ranking and images with same similarity score are the same image.}}
  {\includegraphics[width=0.5\linewidth]{line_example}}
 \end{figure}
 
 \begin{figure}[htbp]
- Caption and label go in the first argument and the figure contents
- go in the second argument
 \floatconts
  {fig:heat_example}
- {\caption{Example Image}}
+ {\caption{The heatmap of the rankings, the first line is with cosine similarity and the second line is by the scientists. The boxes with the same color represent the same image.}}
  {\includegraphics[width=0.5\linewidth]{heat_example}}
 \end{figure}
 
