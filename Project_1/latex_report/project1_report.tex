@@ -108,7 +108,7 @@ Specifically, we will be using the following metrics: Pixel-Flipping\cite{bach20
 \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
 Another form of explanation is to compare similarities between images. For this step rather than using the last layer of DenseNet we used the global average pooling where each feature is noted as a single number and therefore, becoming better at feature extraction.
 With this, we produce feature vectors for each image and compare these feature vectors using cosine similarity.  So if images are alike they would return a higher similarity score and conversely, if they are different they would have more diverging feature vectors which would lead to a lower similarity score.
-After collecting all the similarity scores for the images a ranking is created. % Will continue later on also improve the writing  
+After collecting all the similarity scores for the images a ranking is created. Finally the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relavency of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a proffesional.
 
 \section{Results \& Discussion}\label{sec:results-discussion}
 In the subsequent sections we will present and discuss the results gathered from testing the model and explanation methods described in section\ref{sec:methods-materials} on a predefined set of test images.
@@ -197,7 +197,8 @@ The quality of the saliency maps was tested on five different metrics from the Q
 \subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
 \section{Conclusion}\label{sec:conclusion}
-
+The understanding of a deep neural network decision-making process is important to make an explainable system. In this study, multiple methods are used to check the explainability of the model we created.
+Overall results showed promising outcomes, especially having a close ranking compared to a professional. However, there are some improvements to be made in the future to improve the performance and consistency of the model.
 
 
 %\begin{figure}[htbp]
