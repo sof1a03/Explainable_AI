@@ -34,51 +34,58 @@
  %   \Name{Arda Adali} \Email{a.c.adali@students.uu.nl}\\
  %   \Name{Kerem Dogan} \Email{k.dogan@students.uu.nl}\\
  % \addr Utrecht University}
-\midlauthor{\Name{Arda Adali} \addr 0000000 \quad \Name{Lena Feiler} \addr 0000000 \quad \Name{Kerem Dogan} \addr 0000000 \quad \Name{Sofia Bianchini} \addr 7273746}
+\midlauthor{\Name{Arda Adali} \addr 0000000 \quad \Name{Lena Feiler} \addr 1751611 \quad \Name{Kerem Dogan} \addr 0000000 \quad \Name{Sofia Bianchini} \addr 7273746}
 \begin{document}
 
 \maketitle
 \vspace{-0.6cm}
 \begin{abstract}
-This study applies explainable AI techniques to detect pleural effusion in chest X-rays using a DenseNet169 model. Saliency Maps highlight image regions relevant to predictions, while Example-Based Explanations retrieve similar cases for comparison. Explanation quality is assessed using Quantus for Saliency Maps and Normalized Discounted Cumulative Gain (nDCG) for case rankings. This work evaluates which method offers the most useful insights, supporting more transparent and trustworthy AI-assisted diagnosis.
+This study applies explainable AI techniques to detect pleural effusion in chest X-rays using a DenseNet169 model. Saliency Maps highlight image regions relevant to predictions, while Example-Based Explanations retrieve similar cases for comparison. Explanation quality is assessed using Quantus for Saliency Maps and Normalized Discounted Cumulative Gain (nDCG) for case rankings. The explanations presented in this work show good initial results but would still require improvement.
 \end{abstract}
 
 \begin{keywords}
-Chest X-Ray, Pleural Effusion, Explainable AI, Saliency maps, GradCAM, Example-base explanations, Cosine Similarity, nDCG, DenseNet
+Chest X-Ray, Pleural Effusion, Explainable AI, Saliency maps, GradCAM, Example-based explanations, Cosine Similarity, nDCG, DenseNet
 \end{keywords}
 
 \section{Introduction}\label{sec:introduction}
-Machine learning is increasingly used to solve complex problems across domains. In healthcare, particularly radiology imaging, AI supports diagnostic and treatment decisions \cite{e2024evaluating}. However, many models act as black boxes with limited insight into how they generate outputs \cite{ahmed2022explainable}, making explainable AI essential to improve transparency and trust.
+Machine learning is increasingly used to solve complex problems across domains.
+In healthcare, particularly in radiology imaging, AI supports diagnostic and treatment decisions~\cite{e2024evaluating}.
+However, many models act as black boxes with limited insight into how they generate outputs~\cite{ahmed2022explainable}, making explainable AI essential to improve transparency and trust.
 
-X-ray analysis is one of the main applications of AI in medicine, especially for detecting bone and lung diseases \cite{miro2022evaluating}. Chest radiography (CXR) systems became even more important during the COVID-19 pandemic, increasing awareness of the need for accurate and explainable tools.
+X-ray analysis is one of the main applications of AI in medicine, especially for detecting bone and lung diseases~\cite{miro2022evaluating}.
 
-This paper presents a machine learning model for predicting pleural effusion from CXR images. It evaluates two explanation methods: Saliency maps and Cosine Similarity. Their quality is assessed using Quantus \cite{hedstrom2023quantus} and (-----).
+This paper presents a machine learning model to predict pleural effusion from CXR images.
+It evaluates two explanation methods: Saliency maps and Cosine Similarity.
+Their quality is evaluated using Quantus~\cite{hedstrom2023quantus} and the Normalized Discounted Cumulative Gain (nDCG) score.
 
 \section{Methods \& Materials}\label{sec:methods-materials}
 \subsection*{Dataset and Preprocessing}
 
-The dataset used for this study was a downsized version of the CheXpert dataset \cite{ashery_chexpert}, which contains both frontal and lateral chest X-rays. Among the available pathology labels, particular attention was given to the \emph{Pleural Effusion} label, which served as the target for classification.
+The dataset used for this study was a smaller version of the CheXpert dataset~\cite{ashery_chexpert}, containing frontal and lateral chest X-rays, of which only the frontal images were used.
+Among the pathology labels available, particular attention was paid to \emph{Pleural Effusion}, which served as the classification target.
 
-The dataset was filtered to include only frontal chest X-ray images for consistency. All images were resized to \(224 \times 224\) pixels and normalized to the \([0, 1]\) range. Images with missing or uncertain \emph{Pleural Effusion} labels were removed to improve reliability. To address class imbalance, class weights were computed based on label frequencies and applied during training. The dataset was split into 80\% training and 20\% validation sets. Since the original X-rays were grayscale, each image was duplicated across three channels to match the input format required by ImageNet-pretrained models.
+Images with missing or uncertain \emph{Pleural Effusion} labels were removed to improve reliability and all images were resized to \(224 \times 224\) pixels and normalized to the \([0, 1]\) range.
+To address the class imbalance, class weights were calculated based on label frequencies and applied during training, where an 80-20 train-test-split was used.
+Since the original X-rays were grayscale, each image was duplicated across three channels to match the input format required by ImageNet-pretrained models.
 
 \subsection*{Model Architecture}\label{subsec:model}
 
-To develop the classification model for detecting \emph{Pleural Effusion}, it was adopted a deep learning approach using \textbf{DenseNet169}, a convolutional neural network (CNN) architecture that belongs to the DenseNet family \cite{huang2017densely}.
+For the classification of \emph{Pleural Effusion}, a convolutional neural network (CNN), the \textbf{DenseNet169} \cite{huang2017densely} was applied.
 
 % DenseNet, short for \emph{Densely Connected Convolutional Network}, uses a unique connectivity pattern in which each layer receives input from all preceding ones and passes its output to all subsequent. This design improves feature propagation and reduces redundant parameters.
 
-\textbf{DenseNet169}, part of the DenseNet family, consists of 169 layers organized into densely connected blocks separated by transition layers that simplifies spatial dimensions for efficiency. It strikes a balance between model depth and computational cost, making it well-suited for medical imaging, where subtle patterns require deep, feature-rich networks \cite{gfg_densenet}. 
+It consists of $169$ layers organized into densely connected blocks separated by transition layers that simplify spatial dimensions for efficiency. It strikes a balance between model depth and computational cost, making it suitable for medical imaging, where subtle patterns require deep, feature-rich networks \cite{gfg_densenet}.
 
-The architecture was adapted from an existing implementation \cite{medium_densenet} and initialized with ImageNet \cite{deng2009imagenet}
- pre-trained weights, which capture general low-level features useful for chest X-rays. During training, lower layers were frozen, and upper layers fine-tuned to detect \emph{Pleural Effusion}.
+The architecture was adapted from an existing implementation~\cite{medium_densenet} and initialized with ImageNet~\cite{deng2009imagenet} pre-trained weights, which capture general low-level features useful for chest X-rays.
+ During training, the lower layers were frozen and the upper layers fine-tuned to detect \emph{Pleural Effusion}.
 
 
 \subsection*{Saliency Map-based Explanations}\label{subsec:saliency-maps}
-One form of visual explanation for deep learning models is saliency map-based explanations.  
-This report specifically explores the use of Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}) which uses gradients in the last convolutional layer of the CNN and global-average-pooling to determine each neuron’s importance to the final prediction \cite{selvaraju2017grad}, and can be used to generate heatmaps highlighting the critical information in the image.  
-% Grad-CAM has often been used in medical image analysis with good results, for example for classifying tuberculosis lung zones \cite{devasia2023deep}, identifying Covid-19 in chest X-rays \cite{khan2022covid}, and pneumonia \cite{du2023classification}.  
+One form of visual explanation for deep learning models is saliency map-based explanations.
+This report specifically explores the use of Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}) which usees gradients in the last convolutional layer of the CNN, and global-average-pooling to determine each neuron’s importance to the final prediction \cite{selvaraju2017grad}, and can be used to generate heatmaps to highlight critical information in the image.
+% Grad-CAM has often been used in medical image analysis with good results, for example for classifying tuberculosis lung zones \cite{devasia2023deep}, identifying Covid-19 in chest X-rays \cite{khan2022covid}, and pneumonia \cite{du2023classification}.
 
-Additionally, to evaluate the quality of the saliency maps, \textbf{Quantus} \cite{hedstrom2023quantus}, a toolkit for evaluating deep learning explanations, has been used. Specifically, it applies the following metrics: Pixel-Flipping \cite{bach2015pixel} for Faithfulness, Local Lipschitz Estimate \cite{alvarez2018towards} for Robustness, Model Parameter Randomisation test \cite{adebayo2018sanity} for Randomisation, Relevance Mass Accuracy \cite{Arras_2022} for Localisation, and Complexity \cite{bhatt2020evaluating} for Complexity.
+Additionally, to evaluate the quality of saliency maps, \textbf{Quantus}~\cite{hedstrom2023quantus}, a toolkit for evaluating deep learning explanations, was used. Specifically, it applies the following metrics: Pixel-Flipping \cite{bach2015pixel} for Faithfulness, Local Lipschitz Estimate \cite{alvarez2018towards} for Robustness, Model Parameter Randomisation test \cite{adebayo2018sanity} for Randomisation, Relevance Mass Accuracy \cite{Arras_2022} for Localisation, and Complexity \cite{bhatt2020evaluating} for Complexity.
 
 
 % \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
@@ -88,34 +95,53 @@ Additionally, to evaluate the quality of the saliency maps, \textbf{Quantus} \ci
 
 
 \subsection*{Example-based Explanations}\label{subsec:example-based-explanations}
-Example-based explanations are performed by extracting image feature embeddings from the last pooling layer and ranking images by \textbf{cosine similarity}, which measures vector orientation and magnitude \cite{han2022similarity}. Rankings are compared to expert-defined rankings using \textbf{NDCG} (Normalized Discounted Cumulative Gain), which evaluates ranking quality by assigning relevance scores (in this experiment in the range $[5.5,1]$), computing discounted gain, and normalizing it based on the ideal expert ranking \cite{jarvelin2002ndcg}. This approach evaluates whether the model groups similar images in a clinically meaningful way.
+Example-based explanations are performed by extracting image feature embeddings from the last pooling layer and ranking images by \textbf{cosine similarity}, which measures vector orientation and magnitude \cite{han2022similarity}. Those rankings are compared to expert-defined rankings using \textbf{nDCG}, which evaluates ranking quality by assigning relevance scores (here in the range $[5.5,1]$), to compute discounted gain, and normalizing it based on the ideal expert ranking \cite{jarvelin2002ndcg}. This approach evaluates whether the model groups similar images in a clinically meaningful way.
 
 
 \section{Results \& Discussion}\label{sec:results-discussion}
-In the subsequent sections we will present and discuss the results gathered from testing the model and explanation methods described in section \ref{sec:methods-materials} on a predefined set of test images.
+In the subsequent sections, we will present and discuss the results gathered from testing the model and explanation methods described in section~\ref{sec:methods-materials} on a predefined set of test images.
+
+\subsection*{Model Training and Evaluation}
+
+\begin{figure}[h!]
+\centering
+\begin{minipage}{0.4\textwidth}
+    \includegraphics[width=\linewidth]{Trainin_validation_acc_loss.png}
+    \caption{Training and validation performance per epoch}
+    \label{fig:performance}
+\end{minipage}\hfill
+\begin{minipage}{0.56\textwidth}
+During training, the DenseNet169 model steadily improved in training accuracy and loss, though validation accuracy fluctuated, indicating some overfitting (Figure~\ref{fig:performance}). The final model achieved 79.21\% accuracy on the test set, with a precision of 63.41\% and recall of 81.25\%, showing good detection of positive \emph{Pleural Effusion} cases.
+The F1-score was 71.23\%, balancing precision and recall, while the ROC AUC reached 84.96\%, demonstrating strong overall discriminatory power. %A confusion matrix was computed (Table \ref{tab:confusion})
+A binomial test yielded a p-value of $2.03 \times 10^{-17}$, confirming the performance is significantly better than chance.
+\end{minipage}
+\end{figure}
 
 \subsection*{Saliency Maps}\label{subsec:res:saliency-maps}
-The GradCAM explanations generated to gain insights about the models' focus on the test images can be seen in Figure \ref{fig:gradcam}.
-The most important region, as identified by the model, is represented in seismic colours: red, white, and blue. The bounding boxes on the explanation boxes circle the important parts of the image, that the explanation should focus on. In all five test images, the explanations highlight parts of the bounding box, but often also highlight irrelevant areas outside of it.
+Figure~\ref{fig:gradcam} shows the GradCAM explanations generated to gain insights about the models' focus on the test images.
+The most important region, as identified by the model, is represented in seismic colours: red, white, and blue.
+The bounding boxes on the explanation boxes circle the critical parts of the image, that the explanation should focus on.
 
-In most cases, the heatmaps focus on the lower lung regions associated with Pleural Effusion, suggesting the model identifies clinically relevant areas. However, some explanations highlight unrelated regions, indicating that the model occasionally relies on uninformative features to classify Pleural Effusion.
+In all five test images, the explanations highlight parts of the bounding box but often highlight irrelevant areas outside of it.
 
+In most cases, the heatmaps focus on the lower lung regions associated with Pleural Effusion, suggesting the model identifies clinically relevant areas.
+However, some explanations highlight unrelated regions, indicating that the model occasionally relies on uninformative features to classify Pleural Effusion.
 
-\begin{figure}[h] 
+Additionally, table~\ref{tab:quantus} shows the mean and standard deviation of the Quantus evaluation metrics on the test images \footnote{Please note that the other two metrics (Randomisation and Localisation) were left out of the table due to practical errors between the TensorFlow model and the Quantus explanations, which is explained in Appendix \ref{app:quantus}.}.
+
+\begin{figure}[ht]
 \label{fig:gradcam}
 \centering
 \includegraphics[width=0.95\textwidth]{grad_cam}
 \caption{\small GradCAM Explanations}
 \end{figure}
 
-Additionally, the quality of the saliency maps were tested on the different metrics from the Quantus library. Table \ref{tab:quantus} shows the mean and standard deviation of the quantus evaluations metrics on the test images \footnote{Please note that the other two metrics (Randomisation and Localisation) were left out of the table due to practical errors between the tensorflow model and the quantus explanations, which is explained in Appendix \ref{app:quantus}.}.
-The complexity metric ($9.3$) reflects the expected high complexity of CNN explanations. The robustness score ($0.032051$) indicates the model is highly stable to small input perturbations. Finally, the faithfulness measure confirms that removing important pixels causes a significant drop in confidence, showing the explanation accurately highlights the model’s key features.
 
-
-\begin{table}[h!]
-\begin{minipage}{0.45\textwidth}\centering
-\label{tab:quantus}
-\begin{tabular}{|c|c|c|}
+\begin{figure}[h!]
+\centering
+\begin{minipage}{0.48\textwidth}
+    \label{tab:quantus}
+\begin{tabular}{|p{3cm}|c|p{2cm}|}
 \hline
 \textbf{} & \textbf{Mean} & \textbf{Standard deviation} \\
 \hline
@@ -126,52 +152,25 @@ Pixel Flipping & 1 & 0 \\
 \end{tabular}
 \centering\caption{Quantus: Explanation Evaluation}
 \end{minipage}\hfill
-\begin{minipage}{0.45\textwidth}
-\centering
-\label{tab:confusion}
-\begin{tabular}{|c|c|c|}
-\hline
-\textbf{Act/pred } & \textbf{0} & \textbf{1} \\ 
-\hline
-0 & 108 & 30 \\
-\hline
-1 & 12 & 52 \\
-\hline
-\end{tabular}
-\caption{Confusion Matrix}
-\end{minipage}
-\end{table}
-
-
-% Please note that the other two metrics (Randomisation and Localisation) were left out of the table due to practical errors between the tensorflow model and the quantus explanations, which is explained in Appendix \ref{app:quantus}.
-
-\section{Model Training and Evaluation}
-
-
-\begin{figure}[h!]
-\centering
 \begin{minipage}{0.48\textwidth}
-    \includegraphics[width=\linewidth]{Trainin_validation_acc_loss.png}
-    \caption{Training and validation performance per epoch}
-    \label{fig:performance}
-\end{minipage}\hfill
-\begin{minipage}{0.48\textwidth}
-During training, the DenseNet169 model steadily improved in training accuracy and loss, though validation accuracy fluctuated, indicating some overfitting (Figure~\ref{fig:performance}). The final model achieved 79.21\% overall accuracy on the test set, with a precision of 63.41\% and recall of 81.25\%, showing good detection of positive \emph{Pleural Effusion} cases.
-The F1-score was 71.23\%, balancing precision and recall, while the ROC AUC reached 84.96\%, demonstrating strong overall discriminatory power. A confusion matrix was computed (Table \ref{tab:confusion})
-A binomial test yielded a p-value of $2.03 \times 10^{-17}$, confirming the model’s performance is significantly better than chance.
+
+The complexity metric ($9.3$) reflects the expected high complexity of CNN explanations.
+The robustness score ($0.032051$) indicates the model is highly stable to small input perturbations.
+Finally, the faithfulness measure confirms that removing important pixels causes a significant drop in confidence, showing the explanation accurately highlights the model’s key features.
 \end{minipage}
 \end{figure}
 
 
+% Please note that the other two metrics (Randomisation and Localisation) were left out of the table due to practical errors between the tensorflow model and the quantus explanations, which is explained in Appendix \ref{app:quantus}.
 
 
 
-\subsection{Example-based Explanations}\label{subsec:res:example-based-explanations}
+\subsection*{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
-The results indicates an alignment between the scientists and the cosine similarity rankings.
-The high NDCG score of 0.96 means that features of the images extracted by the model exhibit relevant information for accurate classification that correlates the opinion of the scientist.
+The results indicate an alignment between the scientists' and the cosine similarity rankings.
+The high nDCG score of $0.96$ means that features of the images extracted by the model exhibit relevant information for accurate classification that correlates the opinion of the scientist.
 While the line plot~\ref{fig:line_example} reveals some mismatches in rankings, the overall similarity remains consistent; the cosine similarity score of the images in the same ranking spot in different lines tends to have close values.
-Especially in the first half of the rankings compared to the second half which, given the discounted nature of the evaluation metric, affect the high NDCG score. The heatmap plot~\ref{fig:heat_example}, better visualises that indeed both rankings have the same five images in their top six images in slightly different order.
+Especially in the first half of the rankings compared to the second half which, given the discounted nature of the evaluation metric, affect the high nDCG score. The heatmap in plot~\ref{fig:heat_example}, shows that both rankings have the same five images in their top six rankings in slightly different order.
 
 
 \begin{figure}[htbp]
@@ -179,18 +178,18 @@ Especially in the first half of the rankings compared to the second half which, 
     \begin{minipage}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{line_example}
-        \caption{The line plot of images ranked by the scientists and cosine similarity. The x-axis is the ranking, and images with the same similarity score are identical.}
+        \caption{The line plot of images ranked by the scientists and cosine similarity.}
         \label{fig:line_example}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\linewidth]{heat_example}
-        \caption{The heatmap of the rankings. The first row corresponds to cosine similarity rankings, and the second row is ranked by scientists. Identical images share the same color.}
+        \caption{The heatmap of the rankings (identical images share the same color)}
         \label{fig:heat_example}
     \end{minipage}
 \end{figure}
-    
+
 % \begin{figure}[htbp]
 % \floatconts
 %  {fig:line_example}
@@ -215,12 +214,12 @@ However, there are some improvements to be made in the future to improve the per
 
 \appendix
 \section{Quantus Error Messages}\label{app:quantus}
-While Quantus was adapted to tensorflow, it appears that two of the requested methods are not fully compatible.
+While Quantus was adapted to TensorFlow, it appears that two of the requested methods are not fully compatible.
 We have looked for help but could not fix it until the deadline and had not trained a new model since we were initially convinced, that with the promise of compatibility, the method should work, at least with the in-built explanation methods of quantus - which it did not.
 In Figure \ref{fig:quantus_error} one can see the error displayed when applying the localisation metric (Relevance Mass Accuracy) to the in-built explanation method of Integrated Gradients.
 The \"inputs should share same dimensions\" error presents itself even when the shapes of the two specified inputs are clearly the same.
 
-\begin{figure}[h] \caption{The error displayed when for the localisation metric on the in-built Integrated Gradients explanation method with a tensorflow model.}
+\begin{figure}[ht] \caption{The error displayed when for the localisation metric on the in-built Integrated Gradients explanation method with a TensorFlow model.}
 \label{fig:quantus_error}
 \centering
 \includegraphics[width=\textwidth]{Quantus_error}
