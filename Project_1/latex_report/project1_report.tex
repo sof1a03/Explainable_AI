@@ -145,7 +145,7 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
     \caption{Quantus: Explanation Evaluation}
 \end{minipage}\hfill
 \begin{minipage}{0.48\textwidth}
-    The complexity metric ($9.3$) reflects the expected high complexity of CNN explanations.
+    The complexity metric ($9.3$) reflects the expected high complexity of CNN explanations. The score is close to the upper bound based on the number of features used, which means the model balances the use of features for predictions equally.
     The robustness score ($0.032051$) indicates the model is highly stable to small input perturbations.
     Finally, the faithfulness measure confirms that removing important pixels causes a significant drop in confidence, showing the explanation accurately highlights the model’s key features.
 \end{minipage}
@@ -182,7 +182,7 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
 
 \subsection*{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
-The results show strong alignment between the scientists' and cosine similarity rankings. The high nDCG score ($0.96$) confirms that extracted features correlate well with expert judgment. While the line plot (Figure ~\ref{fig:line_example}) reveals some ranking mismatches, overall similarity remains consistent, especially in the top-ranked images. The heatmap in plot (Figure ~\ref{fig:heat_example}) further shows that five of the top six images appear in both rankings, though in a slightly different order.
+The results show strong alignment between the scientists' and cosine similarity rankings. The high nDCG score ($0.97$) confirms that extracted features correlate well with expert judgment. While the line plot (Figure ~\ref{fig:line_example}) reveals some ranking mismatches, overall similarity remains consistent, especially in the top-ranked images. The heatmap in plot (Figure ~\ref{fig:heat_example}) further shows that five of the top six images appear in both rankings, though in a slightly different order.
 
 
 \begin{figure}[htbp]
