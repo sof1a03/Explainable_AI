@@ -73,12 +73,12 @@ A \textbf{DenseNet169} \cite{huang2017densely} convolutional neural network was 
 
 \subsection*{Explanations}
 
-For this experiment two different explanations were exploited. This report explores Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}), which identifies critical regions in an image by leveraging gradients in the last convolutional layer of a CNN and global-average-pooling to assess neuron importance \cite{selvaraju2017grad}. Grad-CAM generates heatmaps that highlight relevant features for model predictions. To evaluate the quality of saliency maps, the Quantus toolkit \cite{hedstrom2023quantus} was used, employing metrics such as Pixel-Flipping \cite{bach2015pixel} (Faithfulness), Local Lipschitz Estimate \cite{alvarez2018towards} (Robustness), Model Parameter Randomisation \cite{adebayo2018sanity} (Randomisation), Relevance Mass Accuracy \cite{Arras_2022} (Localisation), and Complexity \cite{bhatt2020evaluating} (Complexity).
+For this experiment two different explanations were exploited. This report explores Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}), which identifies critical regions in an image by leveraging gradients in the last convolutional layer of a CNN and global-average-pooling to assess neuron importance \cite{selvaraju2017grad}. Grad-CAM generates heatmaps that highlight relevant features for model predictions. To evaluate the quality of saliency maps, the Quantus toolkit \cite{hedstrom2023quantus} was used, employing metrics such as Pixel-Flipping \cite{bach2015pixel} (Faithfulness), Local Lipschitz Estimate \cite{alvarez2018towards} (Robustness), Model Parameter Randomisation \cite{adebayo2018sanity} (Randomisation), Relevance Mass Accuracy \cite{Arras_2022} (Localization), and Complexity \cite{bhatt2020evaluating} (Complexity).
 
 For example-based explanations, image feature embeddings from the last pooling layer are extracted and ranked using \textbf{cosine similarity}, measuring vector orientation and magnitude \cite{han2022similarity}. These rankings are compared to expert-defined rankings via Normalized Discounted Cumulative Gain (\textbf{nDCG}) \cite{jarvelin2002cumulated}, which assesses ranking quality by assigning relevance scores in the range $[5.5,1]$, computing discounted gain, and normalizing against the ideal expert ranking. This ensures that the model groups similar images in a clinically meaningful way.
 
 % \subsection*{Saliency Map-based Explanations}\label{subsec:saliency-maps}
-% One form of visual explanation for deep learning models is saliency map-based explanations. This report specifically explores the use of Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}) which usees gradients in the last convolutional layer of the CNN, and global-average-pooling to determine each neuron’s importance to the final prediction \cite{selvaraju2017grad}, and can be used to generate heatmaps to highlight critical information in the image.
+% One form of visual explanation for deep learning models is saliency map-based explanations. This report specifically explores the use of Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}) which uses gradients in the last convolutional layer of the CNN, and global-average-pooling to determine each neuron’s importance to the final prediction \cite{selvaraju2017grad}, and can be used to generate heatmaps to highlight critical information in the image.
 % % Grad-CAM has often been used in medical image analysis with good results, for example for classifying tuberculosis lung zones \cite{devasia2023deep}, identifying Covid-19 in chest X-rays \cite{khan2022covid}, and pneumonia \cite{du2023classification}.
 % Additionally, to evaluate the quality of saliency maps, \textbf{Quantus}~\cite{hedstrom2023quantus}, a toolkit for evaluating deep learning explanations, was used. Specifically, it applies the following metrics: Pixel-Flipping \cite{bach2015pixel} for Faithfulness, Local Lipschitz Estimate \cite{alvarez2018towards} for Robustness, Model Parameter Randomisation test \cite{adebayo2018sanity} for Randomisation, Relevance Mass Accuracy \cite{Arras_2022} for Localisation, and Complexity \cite{bhatt2020evaluating} for Complexity.
 
@@ -86,7 +86,7 @@ For example-based explanations, image feature embeddings from the last pooling l
 % % \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
 % % Another form of explanation is to compare similarities between images. For this step rather than using the last layer of DenseNet we used the global average pooling where each feature is noted as a single number and therefore, becoming better at feature extraction.
 % % With this, we produce feature vectors for each image and compare these feature vectors using cosine similarity.  So if images are alike they would return a higher similarity score and conversely, if they are different they would have more diverging feature vectors which would lead to a lower similarity score.
-% % After collecting all the similarity scores for the images a ranking is created. Finally the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relavency of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a proffesional.
+% % After collecting all the similarity scores for the images a ranking is created. Finally the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relevency of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a professional.
 
 
 % \subsection*{Example-based Explanations}\label{subsec:example-based-explanations}
@@ -113,7 +113,7 @@ A binomial test yielded a p-value of $2.03 \times 10^{-17}$, confirming the perf
 
 \subsection*{Saliency Maps}\label{subsec:res:saliency-maps}
 Figure \ref{fig:gradcam} shows the GradCAM explanations generated to gain insights about the models' focus on the test images.
-The most important region, as identified by the model, is represented in seismic colours: red, white, and blue.
+The most important region, as identified by the model, is represented in seismic colors: red, white, and blue.
 The bounding boxes on the explanation boxes circle the critical parts of the image, that the explanation should focus on.
 \begin{figure}[h!]
 \label{fig:gradcam}
@@ -126,7 +126,7 @@ In all five test images, the explanations highlight parts of the bounding box bu
 In most cases, the heatmaps focus on the lower lung regions associated with Pleural Effusion, suggesting the model identifies clinically relevant areas.
 However, some explanations highlight unrelated regions, indicating that the model occasionally relies on uninformative features to classify Pleural Effusion.
 
-Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of the Quantus evaluation metrics on the test images \footnote{Please note that the other two metrics (Randomisation and Localisation) were left out of the table due to practical errors between the TensorFlow model and the Quantus explanations, which is explained in Appendix \ref{app:quantus}.}.
+Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of the Quantus evaluation metrics on the test images \footnote{Please note that the other two metrics (Randomisation and Localization) were left out of the table due to practical errors between the TensorFlow model and the Quantus explanations, which are explained in Appendix \ref{app:quantus}.}.
 
 \begin{table}[h!]
 \centering
@@ -226,11 +226,11 @@ However, improvements upon the model and explanation could be made with addition
 \section{Quantus Error Messages}\label{app:quantus}
 While Quantus was adapted to TensorFlow, it appears that two of the requested methods are not fully compatible.
 We have looked for help but could not fix it until the deadline and had not trained a new model since we were initially convinced, that with the promise of compatibility, the method should work, at least with the in-built explanation methods of quantus - which it did not.
-In Figure \ref{fig:quantus_error} one can see the error displayed when applying the localisation metric (Relevance Mass Accuracy) to the in-built explanation method of Integrated Gradients.
+In Figure \ref{fig:quantus_error} one can see the error displayed when applying the localization metric (Relevance Mass Accuracy) to the in-built explanation method of Integrated Gradients.
 The ``inputs should share same dimensions`` error presents itself even when the shapes of the two specified inputs are clearly the same.
 
 \begin{figure}[h!] 
-\caption{The error displayed when for the localisation metric on the in-built Integrated Gradients explanation method with a TensorFlow model.}
+\caption{The error displayed when for the localization metric on the in-built Integrated Gradients explanation method with a TensorFlow model.}
 \label{fig:quantus_error}
 \centering
 \includegraphics[width=\textwidth]{Quantus_error}
