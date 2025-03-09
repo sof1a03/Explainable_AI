@@ -222,19 +222,19 @@ In the medical field, understanding the decision process of machine learning mod
 However, improvements upon the model and explanation could be made with additional time and different classification models should be compared in the future, preferably using the PyTorch environment for better integration with Quantus.
 
 
-\appendix
-\section{Quantus Error Messages}\label{app:quantus}
-While Quantus was adapted to TensorFlow, it appears that two of the requested methods are not fully compatible.
-We have looked for help but could not fix it until the deadline and had not trained a new model since we were initially convinced, that with the promise of compatibility, the method should work, at least with the in-built explanation methods of quantus - which it did not.
-In Figure \ref{fig:quantus_error} one can see the error displayed when applying the localization metric (Relevance Mass Accuracy) to the in-built explanation method of Integrated Gradients.
-The ``inputs should share same dimensions`` error presents itself even when the shapes of the two specified inputs are clearly the same.
+% \appendix
+% \section{Quantus Error Messages}\label{app:quantus}
+% While Quantus was adapted to TensorFlow, it appears that two of the requested methods are not fully compatible.
+% We have looked for help but could not fix it until the deadline and had not trained a new model since we were initially convinced, that with the promise of compatibility, the method should work, at least with the in-built explanation methods of quantus - which it did not.
+% In Figure \ref{fig:quantus_error} one can see the error displayed when applying the localization metric (Relevance Mass Accuracy) to the in-built explanation method of Integrated Gradients.
+% The ``inputs should share same dimensions`` error presents itself even when the shapes of the two specified inputs are clearly the same.
 
-\begin{figure}[h!] 
-\caption{The error displayed when for the localization metric on the in-built Integrated Gradients explanation method with a TensorFlow model.}
-\label{fig:quantus_error}
-\centering
-\includegraphics[width=\textwidth]{Quantus_error}
-\end{figure}
+% \begin{figure}[h!] 
+% \caption{The error displayed when for the localization metric on the in-built Integrated Gradients explanation method with a TensorFlow model.}
+% \label{fig:quantus_error}
+% \centering
+% \includegraphics[width=\textwidth]{Quantus_error}
+% \end{figure}
 
 
 \bibliography{midl-samplebibliography}
