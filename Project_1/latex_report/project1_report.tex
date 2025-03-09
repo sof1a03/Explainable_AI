@@ -126,16 +126,17 @@ In all five test images, the explanations highlight parts of the bounding box bu
 In most cases, the heatmaps focus on the lower lung regions associated with Pleural Effusion, suggesting the model identifies clinically relevant areas.
 However, some explanations highlight unrelated regions, indicating that the model occasionally relies on uninformative features to classify Pleural Effusion.
 
-Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of the Quantus evaluation metrics on the test images \footnote{Please note that the other two metrics (Randomisation and Localization) were left out of the table due to practical errors between the TensorFlow model and the Quantus explanations, which are explained in Appendix \ref{app:quantus}.}.
+Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of the Quantus evaluation metrics on the test images.
+% \footnote{Please note that the other two metrics (Randomisation and Localization) were left out of the table due to practical errors between the TensorFlow model and the Quantus explanations, which are explained in Appendix \ref{app:quantus}.}.
 
 \begin{table}[h!]
 \centering
 \begin{minipage}{0.48\textwidth}
 
     \label{tab:quantus}
-    \begin{tabular}{|p{3cm}|c|p{2cm}|}
+    \begin{tabular}{@{}ccccccc@{}}
     \hline
-    \textbf{} & \textbf{Mean} & \textbf{Standard deviation} \\
+    \textbf{Method} & \textbf{Mean} & \textbf{Std} \\
     \hline
     Complexity & 9.36 & 0.24 \\
     Local Lipschitz Estimate & 0.03 & 0.03 \\
