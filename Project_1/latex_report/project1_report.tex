@@ -140,16 +140,14 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
     \hline
     Complexity & 9.36 & 0.24 \\
     Local Lipschitz Estimate & 0.03 & 0.03 \\
-    Pixel Flipping & 1 & 0 \\
+    Pixel Flipping & 9.93 & 0.49 \\
     Relevance Mass Accuracy & 0.25 & 0.08 \\
     \hline
     \end{tabular}\centering
     \caption{Quantus: Explanation Evaluation}
 \end{minipage}\hfill
 \begin{minipage}{0.48\textwidth}
-    The complexity metric ($9.36$) reflects the expected high complexity of CNN explanations. The score is close to the upper bound based on the number of features used, which means the model balances the use of features for predictions equally.
-    The robustness score ($0.032$) indicates the model is highly stable to small input perturbations.
-    Finally, the faithfulness measure confirms that removing important pixels causes a significant drop in confidence, showing the explanation accurately highlights the model’s key features.
+    The complexity score (9.36) confirms the high complexity of CNN explanations, nearing the upper bound based on feature usage. The robustness score (0.03) shows the model is highly stable to small perturbations. The pixel flipping score (9.93) indicates that removing important pixels significantly reduces confidence, reinforcing the explanation’s reliability. The localization score (0.25) suggests a moderate alignment between highlighted regions and the model’s decision-making process, with some imprecision in feature attribution.
 \end{minipage}
 \end{table}
 
@@ -221,8 +219,7 @@ The results show a strong alignment between the scientists' and cosine similarit
 \vspace{-1cm}
 
 \section{Conclusion}\label{sec:conclusion}
-In the medical field, understanding the decision process of machine learning models is essential for transparency and trust in the findings. Thus, increasing the importance of integrating explanations in assistance systems provided to medical workers. In this study, two explanation methods were presented for this purpose and assessed for their quality. Overall, the results showed promising outcomes, especially in terms of having a close ranking compared to a professional.
-However, improvements upon the model and explanation could be made with additional time and different classification models should be compared in the future, preferably using the PyTorch environment for better integration with Quantus.
+Understanding the decision process of machine learning models is key to transparency and trust, making explainability essential in medical AI systems. This study assessed two explanation methods: Grad-CAM, which highlights important regions in X-rays but can suffer from diffuse attributions, and example-based explanations, which retrieve similar cases via cosine similarity but require a well-curated dataset. Grad-CAM is more effective for clinicians seeking localized insights, while similarity-based explanations aid comparative analysis and proved to be more satisfying in terms of precision. Further improvements and model comparisons should be explored, preferably using PyTorch for better integration with Quantus.
 
 
 % \appendix
