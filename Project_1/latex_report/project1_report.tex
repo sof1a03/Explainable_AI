@@ -52,7 +52,7 @@ Chest X-Ray, Pleural Effusion, Explainable AI, Saliency maps, GradCAM, Example-b
 
 \section{Introduction}\label{sec:introduction}
 Machine learning is increasingly used to solve complex problems across domains.
-In healthcare AI supports diagnostic and treatment decisions~\cite{e2024evaluating}.
+In healthcare, AI supports diagnostic and treatment decisions~\cite{e2024evaluating}.
 However, many models act as black boxes with limited insight into how they generate outputs~\cite{ahmed2022explainable}, making explainable AI essential to improve transparency and trust.
 X-ray analysis is one of the main applications of AI in medicine, especially for detecting bone and lung diseases~\cite{miro2022evaluating}.
 This paper presents a machine learning model to predict pleural effusion from CXR images.
@@ -69,11 +69,11 @@ Since the original X-rays were grayscale, each image was duplicated across three
 
 \subsection*{Model and Training}
 
-A \textbf{DenseNet169} \cite{huang2017densely} convolutional neural network was used for the \emph{Pleural Effusion} classification. The model was initialized with ImageNet \cite{deng2009imagenet} weights, freezing the lower layers while fine-tuning upper layers. A global average pooling layer was added, followed by dense layers with ReLU activations. The final layer used a sigmoid activation for binary classification. Training was performed using the Adam optimizer with a learning rate of $0.0001$, binary cross-entropy loss, and class weighting. The model was trained for $10$ epochs and saved.
+A \textbf{DenseNet169} \cite{huang2017densely} convolutional neural network was used for the \emph{Pleural Effusion} classification. The model was initialized with ImageNet \cite{deng2009imagenet} weights, freezing the lower layers while fine-tuning the upper layers. A global average pooling layer was added, followed by dense layers with ReLU activations. The final layer used a sigmoid activation for binary classification. Training was performed using the Adam optimizer with a learning rate of $0.0001$, binary cross-entropy loss, and class weighting. The model was trained for $10$ epochs and saved.
 
 \subsection*{Explanations}
 
-For this experiment two different explanations were exploited. This report explores Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}), which identifies critical regions in an image by leveraging gradients in the last convolutional layer of a CNN and global-average-pooling to assess neuron importance \cite{selvaraju2017grad}. Grad-CAM generates heatmaps that highlight relevant features for model predictions. To evaluate the quality of saliency maps, the Quantus toolkit \cite{hedstrom2023quantus} was used, employing metrics such as Pixel-Flipping \cite{bach2015pixel} (Faithfulness), Local Lipschitz Estimate \cite{alvarez2018towards} (Robustness), Model Parameter Randomisation \cite{adebayo2018sanity} (Randomisation), Relevance Mass Accuracy \cite{Arras_2022} (Localization), and Complexity \cite{bhatt2020evaluating} (Complexity).
+For this experiment, two different explanations were exploited. This report explores Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}), which identifies critical regions in an image by leveraging gradients in the last convolutional layer of a CNN and global-average-pooling to assess neuron importance \cite{selvaraju2017grad}. Grad-CAM generates heatmaps that highlight relevant features for model predictions. To evaluate the quality of saliency maps, the Quantus toolkit \cite{hedstrom2023quantus} was used, employing metrics such as Pixel-Flipping \cite{bach2015pixel} (Faithfulness), Local Lipschitz Estimate \cite{alvarez2018towards} (Robustness), Model Parameter Randomisation \cite{adebayo2018sanity} (Randomisation), Relevance Mass Accuracy \cite{Arras_2022} (Localization), and Complexity \cite{bhatt2020evaluating} (Complexity).
 
 For example-based explanations, image feature embeddings from the last pooling layer are extracted and ranked using \textbf{cosine similarity}, measuring vector orientation and magnitude \cite{han2022similarity}. These rankings are compared to expert-defined rankings via Normalized Discounted Cumulative Gain (\textbf{nDCG}) \cite{jarvelin2002cumulated}, which assesses ranking quality by assigning relevance scores in the range $[5.5,1]$, computing discounted gain, and normalizing against the ideal expert ranking. This ensures that the model groups similar images in a clinically meaningful way.
 
@@ -86,7 +86,7 @@ For example-based explanations, image feature embeddings from the last pooling l
 % % \subsection{Example-based Explanations}\label{subsec:example-based-explanations}
 % % Another form of explanation is to compare similarities between images. For this step rather than using the last layer of DenseNet we used the global average pooling where each feature is noted as a single number and therefore, becoming better at feature extraction.
 % % With this, we produce feature vectors for each image and compare these feature vectors using cosine similarity.  So if images are alike they would return a higher similarity score and conversely, if they are different they would have more diverging feature vectors which would lead to a lower similarity score.
-% % After collecting all the similarity scores for the images a ranking is created. Finally the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relevency of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a professional.
+% % After collecting all the similarity scores for the images a ranking is created. Finally, the Normalized Discounted Cumulative Gain (NDCG) scores are used to evaluate the relevancy of the rankings based on the cosine similarities. Finally the models ranking is compared to a ranking done by a professional.
 
 
 % \subsection*{Example-based Explanations}\label{subsec:example-based-explanations}
@@ -184,7 +184,7 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
 
 \subsection*{Example-based Explanations}\label{subsec:res:example-based-explanations}
 
-The results show strong alignment between the scientists' and cosine similarity rankings. The high nDCG score ($0.97$) confirms that extracted features correlate well with expert judgment. While the line plot (Figure ~\ref{fig:line_example}) reveals some ranking mismatches, overall similarity remains consistent, especially in the top-ranked images. The heatmap in plot (Figure ~\ref{fig:heat_example}) further shows that five of the top six images appear in both rankings, though in a slightly different order.
+The results show a strong alignment between the scientists' and cosine similarity rankings. The high nDCG score ($0.97$) confirms that extracted features correlate well with expert judgment. While the line plot (Figure ~\ref{fig:line_example}) reveals some ranking mismatches, overall similarity remains consistent, especially in the top-ranked images. The heatmap in the plot (Figure ~\ref{fig:heat_example}) further shows that five of the top six images appear in both rankings, though in a slightly different order.
 
 
 \begin{figure}[htbp]
