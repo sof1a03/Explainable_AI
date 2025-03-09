@@ -137,16 +137,17 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
     \hline
     \textbf{} & \textbf{Mean} & \textbf{Standard deviation} \\
     \hline
-    Complexity & 9.360562 & 0.241967 \\
-    Local Lipschitz Estimate & 0.032051 & 0.031284 \\
+    Complexity & 9.36 & 0.24 \\
+    Local Lipschitz Estimate & 0.03 & 0.03 \\
     Pixel Flipping & 1 & 0 \\
+    Relevance Mass Accuracy & 0.25 & 0.08 \\
     \hline
     \end{tabular}\centering
     \caption{Quantus: Explanation Evaluation}
 \end{minipage}\hfill
 \begin{minipage}{0.48\textwidth}
-    The complexity metric ($9.3$) reflects the expected high complexity of CNN explanations. The score is close to the upper bound based on the number of features used, which means the model balances the use of features for predictions equally.
-    The robustness score ($0.032051$) indicates the model is highly stable to small input perturbations.
+    The complexity metric ($9.36$) reflects the expected high complexity of CNN explanations. The score is close to the upper bound based on the number of features used, which means the model balances the use of features for predictions equally.
+    The robustness score ($0.032$) indicates the model is highly stable to small input perturbations.
     Finally, the faithfulness measure confirms that removing important pixels causes a significant drop in confidence, showing the explanation accurately highlights the model’s key features.
 \end{minipage}
 \end{table}
@@ -161,12 +162,12 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
 % \begin{tabular}{|p{3cm}|c|p{2cm}|}
 % \hline
 % \textbf{} & \textbf{Mean} & \textbf{Standard deviation} \\
-    \hline
-    Complexity & 9.36 & 0.24 \\
-    Local Lipschitz Estimate & 0.03 & 0.03 \\
-    Pixel Flipping & 1 & 0 \\
-    Relevance Mass Accuracy & 0.25 & 0.08 \\
-    \hline
+    % \hline
+    % Complexity & 9.36 & 0.24 \\
+    % Local Lipschitz Estimate & 0.03 & 0.03 \\
+    % Pixel Flipping & 1 & 0 \\
+    % Relevance Mass Accuracy & 0.25 & 0.08 \\
+    % \hline
 % \end{tabular}
 % \centering\caption{Quantus: Explanation Evaluation}
 % \end{minipage}\hfill
