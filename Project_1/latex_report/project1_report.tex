@@ -42,7 +42,8 @@
 \maketitle
 \vspace{-0.6cm}
 \begin{abstract}
-This study applies explainable AI techniques to detect pleural effusion in chest X-rays using a DenseNet169 model. Saliency Maps highlight image regions relevant to predictions, while Example-Based Explanations retrieve similar cases for comparison. Explanation quality is assessed using Quantus for Saliency Maps and Normalized Discounted Cumulative Gain (nDCG) for case rankings. The explanations presented in this work show good initial results but would still require improvement.
+This study applies explainable AI techniques to detect pleural effusion in chest X-rays using a DenseNet169 model.
+Saliency Maps highlight image regions relevant to predictions, while Example-Based Explanations retrieve similar cases for comparison. Explanation quality is assessed using Quantus for Saliency Maps and Normalized Discounted Cumulative Gain (nDCG) for case rankings. The explanations presented in this work show good initial results but would still require improvement before being applied in the field.
 \end{abstract}
 
 \begin{keywords}
@@ -68,13 +69,13 @@ Since the original X-rays were grayscale, each image was duplicated across three
 
 \subsection*{Model and Training}
 
-A \textbf{DenseNet169} \cite{huang2017densely} convolutional neural network was used for \emph{Pleural Effusion} classification. The model was initialized with ImageNet \cite{deng2009imagenet} weights, freezing the lower layers while fine-tuning upper layers. A global average pooling layer was added, followed by dense layers with ReLU activations. The final layer used a sigmoid activation for binary classification. Training was performed using the Adam optimizer with a learning rate of $0.0001$, binary cross-entropy loss, and class weighting. The model was trained for $10$ epochs and saved.
+A \textbf{DenseNet169} \cite{huang2017densely} convolutional neural network was used for the \emph{Pleural Effusion} classification. The model was initialized with ImageNet \cite{deng2009imagenet} weights, freezing the lower layers while fine-tuning upper layers. A global average pooling layer was added, followed by dense layers with ReLU activations. The final layer used a sigmoid activation for binary classification. Training was performed using the Adam optimizer with a learning rate of $0.0001$, binary cross-entropy loss, and class weighting. The model was trained for $10$ epochs and saved.
 
 \subsection*{Explanations}
 
-For this experiment two different explanations were exploited. This report explores Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}), which identifies critical regions in an image by leveraging gradients in the last convolutional layer of a CNN and global-average-pooling to assess neuron importance \cite{selvaraju2017grad}. Grad-CAM generates heatmaps that highlight relevant features for model predictions. To evaluate the quality of saliency maps, the Quantus toolkit \cite{hedstrom2023quantus} was used, employing metrics such as Pixel-Flipping \cite{bach2015pixel} (Faithfulness), Local Lipschitz Estimate \cite{alvarez2018towards} (Robustness), Model Parameter Randomisation \cite{adebayo2018sanity} (Randomisation), Relevance Mass Accuracy \cite{Arras_2022} (Localisation), and Complexity \cite{bhatt2020evaluating}.
+For this experiment two different explanations were exploited. This report explores Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}), which identifies critical regions in an image by leveraging gradients in the last convolutional layer of a CNN and global-average-pooling to assess neuron importance \cite{selvaraju2017grad}. Grad-CAM generates heatmaps that highlight relevant features for model predictions. To evaluate the quality of saliency maps, the Quantus toolkit \cite{hedstrom2023quantus} was used, employing metrics such as Pixel-Flipping \cite{bach2015pixel} (Faithfulness), Local Lipschitz Estimate \cite{alvarez2018towards} (Robustness), Model Parameter Randomisation \cite{adebayo2018sanity} (Randomisation), Relevance Mass Accuracy \cite{Arras_2022} (Localisation), and Complexity \cite{bhatt2020evaluating} (Complexity).
 
-For example-based explanations, image feature embeddings from the last pooling layer are extracted and ranked using \textbf{cosine similarity}, measuring vector orientation and magnitude \cite{han2022similarity}. These rankings are compared to expert-defined rankings via \textbf{nDCG} \cite{jarvelin2002ndcg}, which assesses ranking quality by assigning relevance scores in the range $[5.5,1]$, computing discounted gain, and normalizing against the ideal expert ranking. This ensures that the model groups similar images in a clinically meaningful way.
+For example-based explanations, image feature embeddings from the last pooling layer are extracted and ranked using \textbf{cosine similarity}, measuring vector orientation and magnitude \cite{han2022similarity}. These rankings are compared to expert-defined rankings via Normalized Discounted Cumulative Gain (\textbf{nDCG}) \cite{jarvelin2002cumulated}, which assesses ranking quality by assigning relevance scores in the range $[5.5,1]$, computing discounted gain, and normalizing against the ideal expert ranking. This ensures that the model groups similar images in a clinically meaningful way.
 
 % \subsection*{Saliency Map-based Explanations}\label{subsec:saliency-maps}
 % One form of visual explanation for deep learning models is saliency map-based explanations. This report specifically explores the use of Gradient-weighted Class Activation Mapping (\textbf{Grad-CAM}) which usees gradients in the last convolutional layer of the CNN, and global-average-pooling to determine each neuron’s importance to the final prediction \cite{selvaraju2017grad}, and can be used to generate heatmaps to highlight critical information in the image.
@@ -130,7 +131,7 @@ Additionally, Table~\ref{tab:quantus} shows the mean and standard deviation of t
 \begin{table}[h!]
 \centering
 \begin{minipage}{0.48\textwidth}
-    
+
     \label{tab:quantus}
     \begin{tabular}{|p{3cm}|c|p{2cm}|}
     \hline
@@ -196,7 +197,7 @@ The results show strong alignment between the scientists' and cosine similarity 
     \begin{minipage}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=0.8\linewidth]{heat_example}
-        \caption{The heatmap of the rankings (identical images share the same color)}
+        \caption{heatmap of the similarity rankings (identical images share the same color)}
         \label{fig:heat_example}
     \end{minipage}
 \end{figure}
@@ -217,10 +218,8 @@ The results show strong alignment between the scientists' and cosine similarity 
 \vspace{-1cm}
 
 \section{Conclusion}\label{sec:conclusion}
-The understanding of a deep neural network decision-making process is important to make an explainable system.
-In this study, multiple methods are used to check the explainability of the model we created.
-Overall results showed promising outcomes, especially having a close ranking compared to a professional.
-However, there are some improvements to be made in the future to improve the performance and consistency of the model.
+In the medical field, understanding the decision process of machine learning models is essential for transparency and trust in the findings. Thus, increasing the importance of integrating explanations in assistance systems provided to medical workers. In this study, two explanation methods were presented for this purpose and assessed for their quality. Overall, the results showed promising outcomes, especially in terms of having a close ranking compared to a professional.
+However, improvements upon the model and explanation could be made with additional time and different classification models should be compared in the future, preferably using the PyTorch environment for better integration with Quantus.
 
 
 \appendix
@@ -228,7 +227,7 @@ However, there are some improvements to be made in the future to improve the per
 While Quantus was adapted to TensorFlow, it appears that two of the requested methods are not fully compatible.
 We have looked for help but could not fix it until the deadline and had not trained a new model since we were initially convinced, that with the promise of compatibility, the method should work, at least with the in-built explanation methods of quantus - which it did not.
 In Figure \ref{fig:quantus_error} one can see the error displayed when applying the localisation metric (Relevance Mass Accuracy) to the in-built explanation method of Integrated Gradients.
-The \"inputs should share same dimensions\" error presents itself even when the shapes of the two specified inputs are clearly the same.
+The ``inputs should share same dimensions`` error presents itself even when the shapes of the two specified inputs are clearly the same.
 
 \begin{figure}[h!] 
 \caption{The error displayed when for the localisation metric on the in-built Integrated Gradients explanation method with a TensorFlow model.}
