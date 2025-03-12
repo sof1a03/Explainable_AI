@@ -127,7 +127,7 @@ visualize_tree_graphically(coffee_tree)
 """
 
 # Exercise 1
-traces = execution_traces("Project_2/coffee.json", "getCoffee")
+traces = execution_traces("coffee.json", "getCoffee")
 print(traces)
 
 # Exercise 2
