@@ -6,8 +6,6 @@ from PIL import Image
 import json
 from itertools import product
 
-
-
 def build_tree(tree_dict, convert_to_int=False):
     if convert_to_int:
         return build_integer_tree(tree_dict)
@@ -129,8 +127,10 @@ visualize_tree_graphically(coffee_tree)
 """
 
 # Exercise 1
-traces = execution_traces("coffee.json", "getCoffee")
+traces = execution_traces("Project_2/coffee.json", "getCoffee")
 print(traces)
+
+# Exercise 2
 
 
 
