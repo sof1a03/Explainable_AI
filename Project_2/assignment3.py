@@ -103,21 +103,32 @@ def get_normed_tree(tree, norm):
 
 
 def get_all_valid_traces(json_tree, pre, post):
+    '''
+    Filters the valid traces based on the pre and post conditions
+    '''
     traces_with_pre_post = []
     node_traces = execution_traces(json_tree, "getCoffee")
-    for trace in node_traces:
-        if all([not node.violation for node in PreOrderIter(json_tree) if
-                hasattr(node, "violation") and node.name in trace]):
-            pre_nodes = [node.pre for node in PreOrderIter(json_tree) if
-                            hasattr(node, "pre") and node.name in trace]
-            pre_nodes_list = [item for pre_node in pre_nodes for item in pre_node]
-            if all([p in pre_nodes_list for p in pre]):
-                post_nodes = [node.post for node in PreOrderIter(json_tree) if
-                                hasattr(node, "post") and node.name in trace]
-                post_nodes_list = [item for post_node in post_nodes for item in post_node]
-                if all([p in post_nodes_list for p in post]):
 
-                    traces_with_pre_post.append(trace)
+    for trace in node_traces:
+        # Filter traces that violate norms
+        if not all([not node.violation for node in PreOrderIter(json_tree) if
+                    hasattr(node, "violation") and node.name in trace]):
+            continue
+        # checking trace validity
+        current_beliefs = set(pre)  # initial beliefs, set just to avoid reps
+        valid = True
+        for action in trace:
+            node = next((n for n in PreOrderIter(json_tree) if n.name == action), None)            
+            if node and hasattr(node, "pre"):
+                if not all(p in current_beliefs for p in node.pre): #check precondition met
+                    valid = False
+                    break  # trace is invalid
+            # Update beliefs after performing the action
+            if node and hasattr(node, "post"):
+                current_beliefs.update(node.post)
+         #if preconditions are met and the post conditions are in the current valid traces, then we keep them
+        if valid and all(g in current_beliefs for g in post):
+            traces_with_pre_post.append(trace)
 
     return traces_with_pre_post
 
