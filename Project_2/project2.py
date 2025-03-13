@@ -1,4 +1,3 @@
-from anytree.importer import JsonImporter
 from anytree import AnyNode, RenderTree
 from anytree.exporter import DotExporter
 import matplotlib.pyplot as plt
@@ -6,14 +5,11 @@ from PIL import Image
 import json
 from itertools import product
 
-def build_tree(tree_dict, convert_to_int=False):
-    if convert_to_int:
-        return build_integer_tree(tree_dict)
-    else:
-        return tree_dict
+with open("coffee.json", "r") as file:
+    json_tree = json.load(file)
 
 
-def build_integer_tree(tree, parent=None):
+def build_tree(tree, parent=None):
     data = {
         key: (
             [int(v) if isinstance(v, (int, float)) else v for v in value] if isinstance(value, list)
@@ -28,22 +24,9 @@ def build_integer_tree(tree, parent=None):
 
     # process children
     for child in tree.get("children", []):
-        build_integer_tree(child, parent=node)
+        build_tree(child, parent=node)
 
     return node
-
-
-def import_data_from_json(json_name):
-    importer = JsonImporter()
-    return importer.import_(json_name)
-
-
-def load_json(data_path, from_file=True):
-    if from_file:
-        with open(data_path, 'r') as file:
-            return json.load(file)
-    else:
-        return json.loads(data_path)
 
 
 def visualize_tree_textually(tree):
@@ -78,7 +61,7 @@ def execution_traces(goal_tree_json, starting_node_name):
     """
 
     # convert json input to proper format
-    goal_tree = build_tree(load_json(goal_tree_json, from_file=True), convert_to_int=True)
+    goal_tree = goal_tree_json
 
     # get starting node in tree
     start_node = goal_tree
@@ -89,7 +72,6 @@ def execution_traces(goal_tree_json, starting_node_name):
             start_node = node
 
     # recursively traverse tree to generate traces
-
     def _get_traces(node):
         # leave nodes are action nodes
         if node.type == "ACT":
@@ -100,37 +82,36 @@ def execution_traces(goal_tree_json, starting_node_name):
             for child in node.children:
                 for trace in _get_traces(child):
                     traces.append([node.name] + trace)
-                    #print(node.name , " " , trace)
 
-            #for t in traces:
-            #print(node.name, " NO ", traces)
             return traces
 
         # list all in first visit order
         elif node.type == "AND" or node.type == "SEQ":
             parallel_traces = [_get_traces(child) for child in node.children]
             all_trace_list = [list(comb) for comb in product(*parallel_traces)]
-            current_traces = [[node.name] + sum(i, []) for i in all_trace_list]
+
+            children_ordered = sorted(node.children, key=lambda x: x.sequence)
+            children_ranked = {child.name: i for i, child in enumerate(children_ordered)}
+            sorted_traces = [sorted(t, key=lambda lst: children_ranked.get(lst[0], float('inf'))) for t in
+                             all_trace_list]
+
+            current_traces = [[node.name] + sum(i, []) for i in sorted_traces]
 
             return current_traces
 
     return _get_traces(start_node)
 
 
-# Exercise 0
 """
-coffee_tree = build_tree(load_json('coffee.json'), convert_to_int=True)
+# Exercise 0
+coffee_tree = build_tree(json_tree)
 output = get_tree(coffee_tree)
 
 visualize_tree_textually(coffee_tree)
 visualize_tree_graphically(coffee_tree)
-"""
+
 
 # Exercise 1
-traces = execution_traces("coffee.json", "getCoffee")
+traces = execution_traces(build_tree(json_tree), "getCoffee")
 print(traces)
-
-# Exercise 2
-
-
-
+"""
