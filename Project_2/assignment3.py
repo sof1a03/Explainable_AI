@@ -107,9 +107,9 @@ def get_all_valid_traces(json_tree, pre, post):
     node_traces = execution_traces(json_tree, "getCoffee")
     for trace in node_traces:
         if all([not node.violation for node in PreOrderIter(json_tree) if
-                hasattr(node, "pre") and node.name in trace]):
+                hasattr(node, "violation") and node.name in trace]):
             pre_nodes = [node.pre for node in PreOrderIter(json_tree) if
-                            hasattr(node, "pre")]
+                            hasattr(node, "pre") and node.name in trace]
             pre_nodes_list = [item for pre_node in pre_nodes for item in pre_node]
             if all([p in pre_nodes_list for p in pre]):
                 post_nodes = [node.post for node in PreOrderIter(json_tree) if
