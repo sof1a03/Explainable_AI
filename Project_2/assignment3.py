@@ -104,20 +104,20 @@ def get_normed_tree(tree, norm):
 
 def get_all_valid_traces(json_tree, pre, post):
     traces_with_pre_post = []
-    for node in PreOrderIter(json_tree):
-        node_traces = execution_traces(json_tree, node.name)
-        for trace in node_traces:
-            if all([not node.violation for node in PreOrderIter(json_tree) if
-                    hasattr(node, "pre") and node.name in trace]):
-                pre_nodes = [node.pre for node in PreOrderIter(json_tree) if
-                             hasattr(node, "pre") and node.name in trace]
-                pre_nodes_list = [item for pre_node in pre_nodes for item in pre_node]
-                if all([p in pre_nodes_list for p in pre]):
-                    post_nodes = [node.post for node in PreOrderIter(json_tree) if
-                                  hasattr(node, "post") and node.name in trace]
-                    post_nodes_list = [item for post_node in post_nodes for item in post_node]
-                    if all([p in post_nodes_list for p in post]):
-                        traces_with_pre_post.append(trace)
+    node_traces = execution_traces(json_tree, "getCoffee")
+    for trace in node_traces:
+        if all([not node.violation for node in PreOrderIter(json_tree) if
+                hasattr(node, "pre") and node.name in trace]):
+            pre_nodes = [node.pre for node in PreOrderIter(json_tree) if
+                            hasattr(node, "pre")]
+            pre_nodes_list = [item for pre_node in pre_nodes for item in pre_node]
+            if all([p in pre_nodes_list for p in pre]):
+                post_nodes = [node.post for node in PreOrderIter(json_tree) if
+                                hasattr(node, "post") and node.name in trace]
+                post_nodes_list = [item for post_node in post_nodes for item in post_node]
+                if all([p in post_nodes_list for p in post]):
+
+                    traces_with_pre_post.append(trace)
 
     return traces_with_pre_post
 
@@ -146,6 +146,7 @@ def decision_making(json_tree, norm, goal, beliefs, preferences):
             [nodes_by_name.get(t, None).costs for t in trace if hasattr(nodes_by_name.get(t, None), "costs")])
         all_trace_costs.append([sum(col) for col in zip(*trace_costs)])
 
+    print(all_trace_costs)
     preferred_trace = all_trace_costs[0]
     for t in all_trace_costs[1:]:
         for i in preferences[1]:
@@ -159,6 +160,7 @@ def decision_making(json_tree, norm, goal, beliefs, preferences):
 
 
 # Exercise 3
+"""
 norm = {'type': 'O', 'actions': ['gotoShop', 'payShop', 'getCoffeeShop']}
 goal = ['haveCoffee']
 beliefs = ['staffCardAvailable', 'ownCard', 'colleagueAvailable', 'haveMoney', 'AnnInOffice']
@@ -167,3 +169,4 @@ sol = ['getCoffee', 'getShopCoffee', 'gotoShop', 'payShop', 'getCoffeeShop']
 output = decision_making(json_tree, norm, goal, beliefs, preferences)
 print(output)
 print(output == sol)
+"""

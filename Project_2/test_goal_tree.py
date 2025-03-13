@@ -67,6 +67,18 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(sol, output)
 
 
+    def test_decision_haveCoffee_haveMoney(self):
+        norm ={'type': 'P', 'actions': ['payShop']}
+        goal=['haveCoffee']
+        beliefs=['haveMoney']
+        preferences=[['quality', 'price', 'time'], [1, 2, 0]]
+        sol = []
+
+        output = decision_making(self.json_tree, norm, goal, beliefs, preferences)
+
+        self.assertEqual(sol, output)
+
+
 
 
 if __name__ == '__main__':

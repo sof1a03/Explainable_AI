@@ -27,6 +27,8 @@ def build_tree(tree, parent=None):
     
 
 def goaltree_violation(tree, norm):
+    if len(norm) == 0:
+        return tree
     def check_violation(node, norm):
         if node.type == 'ACT':  
             action_name = node.name
@@ -50,5 +52,7 @@ def goaltree_violation(tree, norm):
     return tree 
 
 root_node = build_tree(json_tree)
+norm={'type': 'O', 'actions': ['gotoShop', 'payShop', 'getCoffeeShop']}
 annotated_tree = goaltree_violation(root_node, norm)
 output=RenderTree(annotated_tree)
+print(output)
