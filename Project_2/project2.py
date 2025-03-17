@@ -87,11 +87,18 @@ def execution_traces(goal_tree_json, starting_node_name):
 
         # list all in first visit order
         elif node.type == "AND" or node.type == "SEQ":
+            # get all traces of child nodes
             parallel_traces = [_get_traces(child) for child in node.children]
+            # extract into list
             all_trace_list = [list(comb) for comb in product(*parallel_traces)]
 
-            children_ordered = sorted(node.children, key=lambda x: x.sequence)
+            # retrieve sequence order of children if all children have sequence attribute
+            children_ordered = ( sorted(node.children, key=lambda x: x.sequence)
+                                 if all(hasattr(child, "sequence") for child in node.children) else node.children)
+
+            # rank children based on sequence number
             children_ranked = {child.name: i for i, child in enumerate(children_ordered)}
+
             sorted_traces = [sorted(t, key=lambda lst: children_ranked.get(lst[0], float('inf'))) for t in
                              all_trace_list]
 
