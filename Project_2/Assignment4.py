@@ -191,11 +191,13 @@ def explain_or_node(or_node, selected_trace, beliefs, preferences, norm):
         if sibling == chosen_child:
             continue
 
-        child_costs = [c.costs for c in PreOrderIter(chosen_child) if hasattr(c, "costs")]
-
+        child_costs = [chosen_child.costs] if hasattr(chosen_child, "costs") else []
+        child_costs += [c.costs for c in chosen_child.children if hasattr(c, "costs")]
         child_costs = list(map(sum, zip(*child_costs)))
-        sibling_costs = [c.costs for c in PreOrderIter(sibling) if hasattr(c, "costs")]
+        sibling_costs = [sibling.costs] if hasattr(sibling, "costs") else []
+        sibling_costs += [c.costs for c in sibling.children if hasattr(c, "costs")]
         sibling_costs = list(map(sum, zip(*sibling_costs)))
+
 
         if sibling.violation:  # Norm violation
             explanation.append(["N", sibling.name, f"{norm['type']}({', '.join(norm['actions'])})"])
@@ -223,19 +225,15 @@ def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explai
             descendants = [n.name for n in PreOrderIter(node)]
             if any(a in selected_trace for a in descendants):
                 or_factors.extend(
-                    explain_or_node(node, selected_trace, beliefs, preferences[1], norm))  ##TODO check this method
+                    explain_or_node(node, selected_trace, beliefs, preferences[1], norm))
     lookup = {n.name: n for n in PreOrderIter(root)}
 
     p_factors = []  # pre-conditions of the action
-    # d_factors = []  # goal nodes
 
     for step in selected_trace:
         node = lookup.get(step)
         if node and node.type == 'ACT' and hasattr(node, 'pre') and node.pre:
             p_factors.append(["P", node.name, list(node.pre)])
-
-        # if node.type in ['OR', 'AND', 'SEQ']:
-        #    d_factors.append(["D", node.name])
 
         if step == action_to_explain:
             break
@@ -252,7 +250,7 @@ def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explai
     return selected_trace, explanation
 
 
-
+"""
 norm = {'type': 'P', 'actions': ['gotoAnnOffice']}
 goal = ['haveCoffee']
 beliefs = ['staffCardAvailable', 'ownCard']
@@ -265,7 +263,7 @@ beliefs = ["staffCardAvailable", "ownCard", "colleagueAvailable", "haveMoney", "
 goal = ["haveCoffee"]
 preferences = [["quality", "price", "time"], [1, 2, 0]]
 action_to_explain = "getCoffeeKitchen"
-"""
+
 selected_trace, output = explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explain)
 for i in output:
     print(i)
@@ -276,7 +274,7 @@ out = [['C', 'getKitchenCoffee', ['staffCardAvailable']],
        ['C', 'getOwnCard', ['ownCard']],
        ['F', 'getOthersCard', ['colleagueAvailable']],
        ['P', 'getOwnCard', ['ownCard']],
-       ['L', 'getOwnCard', '->', 'getCoffeeKitchen'],
+       #['L', 'getOwnCard', '->', 'getCoffeeKitchen'],
        ['D', 'getStaffCard'],
        ['D', 'getKitchenCoffee'],
        ['D', 'getCoffee'],
