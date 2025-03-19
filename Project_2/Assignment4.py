@@ -1,150 +1,181 @@
 from anytree import AnyNode, PreOrderIter
 from itertools import product
+import json
+import numpy as np
+
+with open("coffee.json", "r") as file:
+    json_tree = json.load(file)
+
 
 def build_tree(tree, parent=None):
     data = {
         key: (
-            [int(v) if isinstance(v, (int, float)) else v for v in value]
-            if isinstance(value, list) else value
+            [int(v) if isinstance(v, (int, float)) else v for v in value] if isinstance(value, list)
+            else int(value) if isinstance(value, (int, float))
+            else value
         )
-        for key, value in tree.items() if key != "children"
+        for key, value in tree.items()
+        if key != "children"
     }
+
     node = AnyNode(parent=parent, **data)
+
+    # process children
     for child in tree.get("children", []):
         build_tree(child, parent=node)
+
     return node
 
-def check_violation(node, norm):
-    if node.type == 'ACT':
-        if norm['type'] == 'O':
-            node.violation = node.name not in norm['actions']
-        elif norm['type'] == 'P':
-            node.violation = node.name in norm['actions']
+
+def execution_traces(goal_tree_json, starting_node_name):
+    """
+    determines all possible behaviors (execution traces) that an agent could exhibit, based on its goal tree
+    :param goal_tree_json: json file representing a goal tree
+    :param starting_node_name: the name of the root node/ starting node for the traversal
+    :return: list of lists representing execution traces starting from the root, with nodes being represented by their name
+    """
+    # convert json input to proper format
+    goal_tree = goal_tree_json
+
+    # get starting node in tree
+    start_node = goal_tree
+    for node in goal_tree.descendants:
+        if start_node.name == starting_node_name:
+            break
         else:
-            node.violation = False
-    elif node.type in ['OR', 'AND', 'SEQ']:
-        for c in node.children:
-            check_violation(c, norm)
-        if node.type == 'OR':
-            node.violation = all(child.violation for child in node.children)
-        else:
-            node.violation = any(child.violation for child in node.children)
+            start_node = node
 
-def annotate_tree_with_norm(root, norm):
-    check_violation(root, norm)
-    return root
+    # recursively traverse tree to generate traces
+    def _get_traces(node):
+        # leave nodes are action nodes
+        if node.type == "ACT":
+            return [[node.name]]
 
-def expand_traces(node):
-    if node.type == 'ACT':
-        return [[node.name]]
-    elif node.type == 'OR':
-        out = []
-        for c in node.children:
-            for sub in expand_traces(c):
-                out.append([node.name] + sub)
-        return out
-    elif node.type in ['AND', 'SEQ']:
-        parts = [expand_traces(ch) for ch in node.children]
-        combos = product(*parts)
-        ordered = sorted(node.children, key=lambda x: getattr(x, 'sequence', 0))
-        res = []
-        for combo in combos:
-            merged = []
-            mapping = {}
-            for ch, piece in zip(node.children, combo):
-                mapping[ch] = piece
-            for ch in ordered:
-                merged += mapping[ch]
-            res.append([node.name] + merged)
-        return res
+        elif node.type == "OR":
+            traces = []
+            for child in node.children:
+                for trace in _get_traces(child):
+                    traces.append([node.name] + trace)
 
-def execution_traces(root):
-    return expand_traces(root)
+            return traces
 
-def violates_norm(trace, root):
-    lookup = {n.name: n for n in PreOrderIter(root)}
-    for act in trace:
-        if act in lookup and getattr(lookup[act], 'violation', False):
-            return True
-    return False
+        # list all in first visit order
+        elif node.type == "AND" or node.type == "SEQ":
+            parallel_traces = [_get_traces(child) for child in node.children]
+            all_trace_list = [list(comb) for comb in product(*parallel_traces)]
 
-def check_preconditions_and_goal(trace, root, beliefs, goal):
-    lookup = {n.name: n for n in PreOrderIter(root)}
-    current = set(beliefs)
-    for step in trace:
-        node = lookup.get(step)
-        if not node:
-            return False
-        for p in getattr(node, 'pre', []):
-            if p not in current:
-                return False
-        for p in getattr(node, 'post', []):
-            current.add(p)
-    return all(g in current for g in goal)
+            children_ordered = sorted(node.children, key=lambda x: x.sequence)
+            children_ranked = {child.name: i for i, child in enumerate(children_ordered)}
+            sorted_traces = [sorted(t, key=lambda lst: children_ranked.get(lst[0], float('inf'))) for t in
+                             all_trace_list]
 
-def get_all_valid_traces(root, beliefs, goal):
-    all_t = execution_traces(root)
-    valid = []
-    for t in all_t:
-        if not violates_norm(t, root) and check_preconditions_and_goal(t, root, beliefs, goal):
-            valid.append(t)
-    return valid
+            current_traces = [[node.name] + sum(i, []) for i in sorted_traces]
+            return current_traces
+
+    return _get_traces(start_node)
+
+
+def get_normed_tree(tree, norm):
+    if len(norm) == 0:
+        return tree
+
+    def check_violation(node, norm):
+        if node.type == 'ACT':
+            action_name = node.name
+            if norm['type'] == 'P':  # Prohibition: Action should not be executed
+                node.violation = action_name in norm['actions']
+            elif norm['type'] == 'O':  # Obligation: Only permitted actions should be executed
+                node.violation = action_name not in norm['actions']
+            else:
+                node.violation = False  # Default: No violation
+
+        elif node.type in ['OR', 'AND', 'SEQ']:
+            for child in node.children:
+                check_violation(child, norm)
+
+            if node.type == 'OR':
+                node.violation = all(child.violation for child in node.children)
+            elif node.type == 'AND' or node.type == 'SEQ':
+                node.violation = any(child.violation for child in node.children)
+
+    check_violation(tree, norm)
+    return tree
+
+
+def get_all_valid_traces(json_tree, pre, post):
+    '''
+    Filters the valid traces based on the pre and post conditions
+    '''
+    traces_with_pre_post = []
+    node_traces = execution_traces(json_tree, "getCoffee")
+
+    for trace in node_traces:
+        # Filter traces that violate norms
+        if not all([not node.violation for node in PreOrderIter(json_tree) if
+                    hasattr(node, "violation") and node.name in trace]):
+            continue
+        # checking trace validity
+        current_beliefs = set(pre)  # initial beliefs, set just to avoid reps
+        valid = True
+        for action in trace:
+            node = next((n for n in PreOrderIter(json_tree) if n.name == action), None)
+            if node and hasattr(node, "pre"):
+                if not all(p in current_beliefs for p in node.pre):  # check precondition met
+                    valid = False
+                    break  # trace is invalid
+            # Update beliefs after performing the action
+            if node and hasattr(node, "post"):
+                current_beliefs.update(node.post)
+        # if preconditions are met and the post conditions are in the current valid traces, then we keep them
+        if valid and all(g in current_beliefs for g in post):
+            traces_with_pre_post.append(trace)
+
+    return traces_with_pre_post
+
 
 def decision_making(json_tree, norm, goal, beliefs, preferences):
-    root = build_tree(json_tree)
-    annotate_tree_with_norm(root, norm)
-    valid = get_all_valid_traces(root, beliefs, goal)
-    if not valid:
-        return []
-    lookup = {n.name: n for n in PreOrderIter(root)}
-    def cost_vector(trace):
-        length = 0
-        for step in trace:
-            node = lookup.get(step)
-            if node and hasattr(node, 'costs'):
-                length = max(length, len(node.costs))
-        out = [0] * length
-        for step in trace:
-            node = lookup.get(step)
-            if node and hasattr(node, 'costs'):
-                for i, c in enumerate(node.costs):
-                    out[i] += c
-        return out
-    order = preferences[1]
-    def compare(a, b):
-        for idx in order:
-            if a[idx] < b[idx]:
-                return -1
-            elif a[idx] > b[idx]:
-                return 1
-        return 0
-    costlist = [cost_vector(t) for t in valid]
-    best = 0
-    for i in range(1, len(valid)):
-        if compare(costlist[i], costlist[best]) < 0:
-            best = i
-    return valid[best]
+    """
+    :param json_tree: son object: A goal tree
+    :param norm: dict: norm for violations in the tree
+    :param goal: list: set of beliefs (strings) of the agent that must be true at the end of the execution of the trace
+    :param beliefs: list: set of strings representing the initial beliefs of the agents
+    :param preferences: list: pair describing the preference of the end-user
+    :return: list of strings: represents the execution trace chosen by the agent
+    """
+    goal_tree = build_tree(json_tree)
+    norm_tree = get_normed_tree(goal_tree, norm)
+    all_traces = get_all_valid_traces(norm_tree, beliefs, goal)
 
-def find_first_violating_action(node):
-    for d in PreOrderIter(node):
-        if d.type == 'ACT' and getattr(d, 'violation', False):
-            return d.name
-    return None
+    if len(all_traces) == 0:
+        return all_traces
 
-def unsatisfied_pre(node, beliefs):
-    pre = node.__dict__.get('pre', [])
-    return [p for p in pre if p not in beliefs]
+    # total cost of a trace is the sum of all costs of actions in the trace
+    nodes_by_name = {node.name: node for node in PreOrderIter(norm_tree)}
+    all_trace_costs = []
+    for trace in all_traces:
+        trace_costs = (
+            [nodes_by_name.get(t, None).costs for t in trace if hasattr(nodes_by_name.get(t, None), "costs")])
+        all_trace_costs.append([sum(col) for col in zip(*trace_costs)])
 
-def option_string(chosen_child):
-    chosen_traces = expand_traces(chosen_child)
-    if chosen_traces and len(chosen_traces[0]) > 1:
-        return "O(" + ", ".join(chosen_traces[0][1:]) + ")"
-    else:
-        return "O()"
+    preferred_trace = all_trace_costs[0]
+    for t in all_trace_costs[1:]:
+        for i in preferences[1]:
+            if t[i] < preferred_trace[i]:
+                preferred_trace = t
+                break
+            elif t[i] > preferred_trace[i]:
+                break
 
-def explain_or_node(or_node, selected_trace, beliefs):
+    return all_traces[all_trace_costs.index(preferred_trace)]
+
+
+def explain_or_node(or_node, selected_trace, beliefs, preferences, norm):
     explanation = []
-    chosen_child = None
+    selected_trace = np.array(selected_trace)
+    chosen_child = selected_trace[np.where(selected_trace == "getCoffee")[0] + 1]
+
+    # chosen_child = [c for c in PreOrderIter(or_node) if c.name == chosen_child_name]
+    # TODO remove
     for c in or_node.children:
         subtree_actions = [n.name for n in PreOrderIter(c)]
         if any(act in selected_trace for act in subtree_actions):
@@ -152,47 +183,62 @@ def explain_or_node(or_node, selected_trace, beliefs):
             break
     if not chosen_child:
         return explanation
+
     chosen_pre = getattr(chosen_child, 'pre', [])
     explanation.append(["C", chosen_child.name, list(chosen_pre) if chosen_pre else []])
-    opt_str = option_string(chosen_child)
+
     for sibling in or_node.children:
         if sibling == chosen_child:
             continue
-        explanation.append(["N", sibling.name, opt_str])
+
+        child_costs = [c.costs for c in PreOrderIter(chosen_child) if hasattr(c, "costs")]
+
+        child_costs = list(map(sum, zip(*child_costs)))
+        sibling_costs = [c.costs for c in PreOrderIter(sibling) if hasattr(c, "costs")]
+        sibling_costs = list(map(sum, zip(*sibling_costs)))
+
+        if sibling.violation:  # Norm violation
+            explanation.append(["N", sibling.name, f"{norm['type']}({', '.join(norm['actions'])})"])
+        elif sibling.pre not in np.array(beliefs):
+            explanation.append(["F", sibling.name, sibling.pre])
+        elif next((child_costs[i] < sibling_costs[i] for i in preferences if child_costs[i] != sibling_costs[i]), None):
+            explanation.append(["V", chosen_child.name, child_costs, ">", sibling.name, sibling_costs])
+
     return explanation
 
-def or_descendants_to_explain(node, selected_trace, beliefs):
-    lines = []
-    if node.type == 'OR':
-        lines += explain_or_node(node, selected_trace, beliefs)
-    if node.type in ['OR', 'AND', 'SEQ']:
-        for c in node.children:
-            lines += or_descendants_to_explain(c, selected_trace, beliefs)
-    return lines
 
 def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explain):
-    selected_trace = decision_making(json_tree, norm, goal, beliefs, preferences)
-    if action_to_explain not in selected_trace:
+    selected_trace = decision_making(json_tree, norm, goal, beliefs,
+                                     preferences)  # retrieve action !!! TODO make sure that it also handles multiples
+    if action_to_explain not in selected_trace:  # If action not in the trace, return an empty list
         return selected_trace, []
+
+    # convert into proper format
     root = build_tree(json_tree)
-    annotate_tree_with_norm(root, norm)
+    root = get_normed_tree(root, norm)
+
     or_factors = []
-    for node in PreOrderIter(root):
+    for node in PreOrderIter(root):  # traverse tree in pre-order
         if node.type == 'OR':
             descendants = [n.name for n in PreOrderIter(node)]
             if any(a in selected_trace for a in descendants):
-                or_factors.extend(explain_or_node(node, selected_trace, beliefs))
+                or_factors.extend(
+                    explain_or_node(node, selected_trace, beliefs, preferences[1], norm))  ##TODO check this method
     lookup = {n.name: n for n in PreOrderIter(root)}
-    p_factors = []
-    partial = []
+
+    p_factors = []  # pre-conditions of the action
+    # d_factors = []  # goal nodes
+
     for step in selected_trace:
-        partial.append(step)
-        if step == action_to_explain:
-            break
-    for step in partial:
         node = lookup.get(step)
         if node and node.type == 'ACT' and hasattr(node, 'pre') and node.pre:
             p_factors.append(["P", node.name, list(node.pre)])
+
+        # if node.type in ['OR', 'AND', 'SEQ']:
+        #    d_factors.append(["D", node.name])
+
+        if step == action_to_explain:
+            break
     d_factors = []
     target_node = lookup[action_to_explain]
     p = target_node.parent
@@ -200,8 +246,40 @@ def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explai
         if p.type in ['OR', 'AND', 'SEQ']:
             d_factors.append(["D", p.name])
         p = p.parent
+
     u_factor = ["U", preferences]
     explanation = or_factors + p_factors + d_factors + [u_factor]
     return selected_trace, explanation
+
+
+
+norm = {'type': 'P', 'actions': ['gotoAnnOffice']}
+goal = ['haveCoffee']
+beliefs = ['staffCardAvailable', 'ownCard']
+preferences = [['quality', 'price', 'time'], [2, 0, 1]]
+action_to_explain = "getOwnCard"
+"""
+
+norm = {"type": "P", "actions": ["payShop"]}
+beliefs = ["staffCardAvailable", "ownCard", "colleagueAvailable", "haveMoney", "AnnInOffice"]
+goal = ["haveCoffee"]
+preferences = [["quality", "price", "time"], [1, 2, 0]]
+action_to_explain = "getCoffeeKitchen"
+"""
 selected_trace, output = explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explain)
-## SO FAR THE BEST PERFORMING MODEL BUT STILL ISNT CONSITENT ENOUGH
+for i in output:
+    print(i)
+
+out = [['C', 'getKitchenCoffee', ['staffCardAvailable']],
+       ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice)'],
+       ['F', 'getShopCoffee', ['haveMoney']],
+       ['C', 'getOwnCard', ['ownCard']],
+       ['F', 'getOthersCard', ['colleagueAvailable']],
+       ['P', 'getOwnCard', ['ownCard']],
+       ['L', 'getOwnCard', '->', 'getCoffeeKitchen'],
+       ['D', 'getStaffCard'],
+       ['D', 'getKitchenCoffee'],
+       ['D', 'getCoffee'],
+       ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+
+print(out == output)
