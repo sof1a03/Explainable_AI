@@ -1,10 +1,22 @@
-from anytree import AnyNode, PreOrderIter
+from anytree import AnyNode, PreOrderIter, RenderTree
 from itertools import product
 import json
 import numpy as np
 
-with open("coffee.json", "r") as file:
+
+'''
+Assigment 4:
+
+Objective: Write an algorithm to explain why a certain action was executed as part of
+a selected execution trace. The selected execution trace should be selected according to
+assignment 3.
+
+
+'''
+
+with open("coffee1.json", "r") as file:
     json_tree = json.load(file)
+
 
 
 def build_tree(tree, parent=None):
@@ -175,7 +187,7 @@ def explain_or_node(or_node, selected_trace, beliefs, preferences, norm):
     chosen_child = selected_trace[np.where(selected_trace == "getCoffee")[0] + 1]
 
     # chosen_child = [c for c in PreOrderIter(or_node) if c.name == chosen_child_name]
-    # TODO remove
+
     for c in or_node.children:
         subtree_actions = [n.name for n in PreOrderIter(c)]
         if any(act in selected_trace for act in subtree_actions):
@@ -191,12 +203,13 @@ def explain_or_node(or_node, selected_trace, beliefs, preferences, norm):
         if sibling == chosen_child:
             continue
 
-        child_costs = [c.costs for c in PreOrderIter(chosen_child) if hasattr(c, "costs")]
-
+        child_costs = [chosen_child.costs] if hasattr(chosen_child, "costs") else []
+        child_costs += [c.costs for c in chosen_child.children if hasattr(c, "costs")]
         child_costs = list(map(sum, zip(*child_costs)))
-        sibling_costs = [c.costs for c in PreOrderIter(sibling) if hasattr(c, "costs")]
+        sibling_costs = [sibling.costs] if hasattr(sibling, "costs") else []
+        sibling_costs += [c.costs for c in sibling.children if hasattr(c, "costs")]
         sibling_costs = list(map(sum, zip(*sibling_costs)))
-
+        
         if sibling.violation:  # Norm violation
             explanation.append(["N", sibling.name, f"{norm['type']}({', '.join(norm['actions'])})"])
         elif sibling.pre not in np.array(beliefs):
@@ -205,11 +218,22 @@ def explain_or_node(or_node, selected_trace, beliefs, preferences, norm):
             explanation.append(["V", chosen_child.name, child_costs, ">", sibling.name, sibling_costs])
 
     return explanation
+    
+    
+
+def get_l_factors(node, lookup, prev_node, l_factors):
+    l_factors.append(["L", prev_node.name, '->', node.name])
+
+    if not hasattr(node, "link"):
+        return
+
+    for l in node.link:
+        get_l_factors(lookup[l], lookup, node, l_factors)
 
 
 def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explain):
     selected_trace = decision_making(json_tree, norm, goal, beliefs,
-                                     preferences)  # retrieve action !!! TODO make sure that it also handles multiples
+                                     preferences)  # retrieve action 
     if action_to_explain not in selected_trace:  # If action not in the trace, return an empty list
         return selected_trace, []
 
@@ -223,19 +247,15 @@ def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explai
             descendants = [n.name for n in PreOrderIter(node)]
             if any(a in selected_trace for a in descendants):
                 or_factors.extend(
-                    explain_or_node(node, selected_trace, beliefs, preferences[1], norm))  ##TODO check this method
+                    explain_or_node(node, selected_trace, beliefs, preferences[1], norm)) 
     lookup = {n.name: n for n in PreOrderIter(root)}
 
     p_factors = []  # pre-conditions of the action
-    # d_factors = []  # goal nodes
 
     for step in selected_trace:
         node = lookup.get(step)
         if node and node.type == 'ACT' and hasattr(node, 'pre') and node.pre:
             p_factors.append(["P", node.name, list(node.pre)])
-
-        # if node.type in ['OR', 'AND', 'SEQ']:
-        #    d_factors.append(["D", node.name])
 
         if step == action_to_explain:
             break
@@ -247,39 +267,48 @@ def explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explai
             d_factors.append(["D", p.name])
         p = p.parent
 
+    l_factors = []
+    linked_nodes = target_node.link if hasattr(target_node, "link") else []
+    for n in linked_nodes:
+        get_l_factors(lookup[n], lookup, target_node, l_factors)
+
     u_factor = ["U", preferences]
-    explanation = or_factors + p_factors + d_factors + [u_factor]
+    explanation = or_factors + p_factors + l_factors + d_factors + [u_factor]
     return selected_trace, explanation
 
+'''example 1'''
+# norm={'type': 'P', 'actions': ['gotoKitchen']}
+# goal=['haveCoffee']
+# beliefs=['haveMoney']
+# preferences=[['quality', 'price', 'time'], [1, 2, 0]]
+# action_to_explain="gotoShop"
+# true_result = [['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['F', 'getAnnOfficeCoffee', ['AnnInOffice']], ['L', 'gotoShop', '->', 'getCoffeeShop'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [1, 2, 0]]]]
+'''example 2'''
+# norm =	{'type': 'P', 'actions': ['gotoAnnOffice']}
+# goal =	['haveCoffee']
+# beliefs=	['staffCardAvailable', 'ownCard']
+# preferences	=[['quality', 'price', 'time'], [2, 0, 1]]
+# action_to_explain	= "getOwnCard"
+# true_result=[['C', 'getKitchenCoffee', ['staffCardAvailable']], ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice)'], ['F', 'getShopCoffee', ['haveMoney']], ['C', 'getOwnCard', ['ownCard']], ['F', 'getOthersCard', ['colleagueAvailable']], ['P', 'getOwnCard', ['ownCard']], ['L', 'getOwnCard', '->', 'getCoffeeKitchen'], ['D', 'getStaffCard'], ['D', 'getKitchenCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+'''example 3'''
+# norm={'type': 'O', 'actions': ['gotoShop', 'payShop', 'getCoffeeShop']}
+# goal=['haveCoffee']
+# beliefs=['haveMoney']
+# preferences=[['quality', 'price', 'time'], [2, 0, 1]]
+# action_to_explain="gotoShop"
+# true_result=[['C', 'getShopCoffee', ['haveMoney']], ['N', 'getKitchenCoffee', 'O(gotoShop, payShop, getCoffeeShop)'], ['N', 'getAnnOfficeCoffee', 'O(gotoShop, payShop, getCoffeeShop)'], ['L', 'gotoShop', '->', 'getCoffeeShop'], ['D', 'getShopCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
+'''example 4'''
+# norm={'type': 'P', 'actions': ['gotoKitchen']}
+# goal=['haveCoffee']
+# beliefs=	['staffCardAvailable', 'ownCard', 'colleagueAvailable', 'haveMoney', 'AnnInOffice']
+# preferences=	[['quality', 'price', 'time'], [2, 0, 1]]
+# action_to_explain=	"gotoAnnOffice"
+# true_result = [['C', 'getAnnOfficeCoffee', ['AnnInOffice']], ['N', 'getKitchenCoffee', 'P(gotoKitchen)'], ['V', 'getAnnOfficeCoffee', [2, 0, 6], '>', 'getShopCoffee', [0, 3, 9]], ['P', 'gotoAnnOffice', ['AnnInOffice']], ['L', 'gotoAnnOffice', '->', 'getCoffeeAnnOffice'], ['D', 'getAnnOfficeCoffee'], ['D', 'getCoffee'], ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
 
+# selected_trace, output = explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explain)
+# print('expected result:')
+# print(true_result)
+# print('output:')
+# print(output)
 
-norm = {'type': 'P', 'actions': ['gotoAnnOffice']}
-goal = ['haveCoffee']
-beliefs = ['staffCardAvailable', 'ownCard']
-preferences = [['quality', 'price', 'time'], [2, 0, 1]]
-action_to_explain = "getOwnCard"
-"""
-
-norm = {"type": "P", "actions": ["payShop"]}
-beliefs = ["staffCardAvailable", "ownCard", "colleagueAvailable", "haveMoney", "AnnInOffice"]
-goal = ["haveCoffee"]
-preferences = [["quality", "price", "time"], [1, 2, 0]]
-action_to_explain = "getCoffeeKitchen"
-"""
-selected_trace, output = explain_action(json_tree, norm, goal, beliefs, preferences, action_to_explain)
-for i in output:
-    print(i)
-
-out = [['C', 'getKitchenCoffee', ['staffCardAvailable']],
-       ['N', 'getAnnOfficeCoffee', 'P(gotoAnnOffice)'],
-       ['F', 'getShopCoffee', ['haveMoney']],
-       ['C', 'getOwnCard', ['ownCard']],
-       ['F', 'getOthersCard', ['colleagueAvailable']],
-       ['P', 'getOwnCard', ['ownCard']],
-       ['L', 'getOwnCard', '->', 'getCoffeeKitchen'],
-       ['D', 'getStaffCard'],
-       ['D', 'getKitchenCoffee'],
-       ['D', 'getCoffee'],
-       ['U', [['quality', 'price', 'time'], [2, 0, 1]]]]
-
-print(out == output)
+# print(output==true_result)
