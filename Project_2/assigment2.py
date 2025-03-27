@@ -26,11 +26,19 @@ def build_tree(tree, parent=None):
     return node
     
 
-def goaltree_violation(tree, norm):
+def get_normed_tree(tree, norm):
+    def mark_no_violation(node):
+        node.violation = False
+        if hasattr(node, 'children'):
+            for child in node.children:
+                mark_no_violation(child)
+
     if len(norm) == 0:
+        mark_no_violation(tree)
         return tree
+
     def check_violation(node, norm):
-        if node.type == 'ACT':  
+        if node.type == 'ACT':
             action_name = node.name
             if norm['type'] == 'P':  # Prohibition: Action should not be executed
                 node.violation = action_name in norm['actions']
@@ -39,17 +47,17 @@ def goaltree_violation(tree, norm):
             else:
                 node.violation = False  # Default: No violation
 
-        elif node.type in ['OR', 'AND', 'SEQ']:  
+        elif node.type in ['OR', 'AND', 'SEQ']:
             for child in node.children:
                 check_violation(child, norm)
-            
+
             if node.type == 'OR':
                 node.violation = all(child.violation for child in node.children)
             elif node.type == 'AND' or node.type == 'SEQ':
                 node.violation = any(child.violation for child in node.children)
-    
+
     check_violation(tree, norm)
-    return tree 
+    return tree
 
 root_node = build_tree(json_tree)
 norm={'type': 'O', 'actions': ['gotoShop', 'payShop', 'getCoffeeShop']}
