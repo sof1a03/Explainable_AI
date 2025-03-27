@@ -61,6 +61,6 @@ def get_normed_tree(tree, norm):
 
 root_node = build_tree(json_tree)
 norm={'type': 'O', 'actions': ['gotoShop', 'payShop', 'getCoffeeShop']}
-annotated_tree = goaltree_violation(root_node, norm)
+annotated_tree = get_normed_tree(root_node, norm)
 output=RenderTree(annotated_tree)
 print(output)
