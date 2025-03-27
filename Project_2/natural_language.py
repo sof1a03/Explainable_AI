@@ -66,6 +66,9 @@ def generate_natural_language(explanation_factors):
     norm_raw = None
     precondition_factors = []
 
+    if explanation_factors == []:
+        return f"Error: The action '{action_to_english[action_to_explain]}' is prohibited by the norm."
+
     for factor in explanation_factors[::-1]:
         typ = factor[0]
 
