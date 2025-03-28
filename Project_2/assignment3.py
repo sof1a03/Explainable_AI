@@ -76,7 +76,14 @@ def execution_traces(goal_tree_json, starting_node_name):
 
 
 def get_normed_tree(tree, norm):
+    def mark_no_violation(node):
+        node.violation = False
+        if hasattr(node, 'children'):
+            for child in node.children:
+                mark_no_violation(child)
+
     if len(norm) == 0:
+        mark_no_violation(tree)
         return tree
 
     def check_violation(node, norm):
