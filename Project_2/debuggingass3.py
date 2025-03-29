@@ -62,37 +62,41 @@ def execution_traces(goal_tree_json, starting_node_name):
 
 # === Norm violation annotation ===
 def get_normed_tree(tree, norm):
+    """
+    Annotates the tree with a boolean 'violation' attribute.
+    - For prohibition norms ('P'), every ACT node is checked.
+    - For obligation norms ('O'), only direct alternatives (i.e. the immediate children of the root node, assumed to be 'getCoffee')
+      are marked as violations if their name is not in norm['actions'].
+    """
     def mark_no_violation(node):
         node.violation = False
         for child in getattr(node, 'children', []):
             mark_no_violation(child)
-
-    if len(norm) == 0:
+    
+    if not norm or len(norm) == 0:
         mark_no_violation(tree)
         return tree
 
     def check_violation(node, norm):
-        node.violation = False
-        node_type = getattr(node, "type", None)
-
-        if node_type == 'ACT':
-            action_name = node.name
-            if norm['type'] == 'P':
-                node.violation = action_name in norm['actions']
-            elif norm['type'] == 'O':
-                node.violation = action_name not in norm['actions']
-
-        elif node_type in ['OR', 'AND', 'SEQ']:
+        # For obligation norms, if the node is a direct child of the root "getCoffee"
+        if norm["type"] == "O" and node.parent and node.parent.name == "getCoffee":
+            node.violation = (node.name not in norm["actions"])
+        # For prohibition norms, apply to every ACT node
+        elif norm["type"] == "P" and node.type == "ACT":
+            node.violation = (node.name in norm["actions"])
+        else:
+            node.violation = False
+        # For non-ACT nodes, propagate violations from children.
+        if node.type in ['OR', 'AND', 'SEQ']:
             for child in node.children:
                 check_violation(child, norm)
-            node.violation = all(child.violation for child in node.children) if node_type == 'OR' else any(child.violation for child in node.children)
-
-        else:
-            for child in getattr(node, 'children', []):
-                check_violation(child, norm)
-
+            if node.type == "OR":
+                node.violation = all(child.violation for child in node.children)
+            elif node.type in ['AND', 'SEQ']:
+                node.violation = any(child.violation for child in node.children)
     check_violation(tree, norm)
     return tree
+
 
 # === Trace filtering ===
 def get_all_valid_traces(json_tree, pre, post):
