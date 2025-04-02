@@ -65,28 +65,29 @@ def get_normed_tree(tree, norm):
     """
     Annotates the tree with a boolean 'violation' attribute.
     - For prohibition norms ('P'), every ACT node is checked.
-    - For obligation norms ('O'), only direct alternatives (i.e. the immediate children of the root node, assumed to be 'getCoffee')
-      are marked as violations if their name is not in norm['actions'].
+    - For obligation norms ('O'), every ACT node is checked:
+         an ACT node is in violation if its name is NOT in norm['actions'].
+    The violation status of non-ACT nodes is computed from their children.
     """
     def mark_no_violation(node):
         node.violation = False
         for child in getattr(node, 'children', []):
             mark_no_violation(child)
-    
+            
     if not norm or len(norm) == 0:
         mark_no_violation(tree)
         return tree
 
     def check_violation(node, norm):
-        # For obligation norms, if the node is a direct child of the root "getCoffee"
-        if norm["type"] == "O" and node.parent and node.parent.name == "getCoffee":
-            node.violation = (node.name not in norm["actions"])
-        # For prohibition norms, apply to every ACT node
-        elif norm["type"] == "P" and node.type == "ACT":
-            node.violation = (node.name in norm["actions"])
+        if node.type == "ACT":
+            if norm["type"] == "O":
+                node.violation = (node.name not in norm["actions"])
+            elif norm["type"] == "P":
+                node.violation = (node.name in norm["actions"])
+            else:
+                node.violation = False
         else:
             node.violation = False
-        # For non-ACT nodes, propagate violations from children.
         if node.type in ['OR', 'AND', 'SEQ']:
             for child in node.children:
                 check_violation(child, norm)
@@ -96,7 +97,6 @@ def get_normed_tree(tree, norm):
                 node.violation = any(child.violation for child in node.children)
     check_violation(tree, norm)
     return tree
-
 
 # === Trace filtering ===
 def get_all_valid_traces(json_tree, pre, post):
