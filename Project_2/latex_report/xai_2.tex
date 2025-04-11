@@ -79,7 +79,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-This report will go over the development of a decision-making artificial intelligence model which is innately explainable. The model achieves this explainability by traversing the goal trees and making decisions based on the user's preference and predefined social norms. Finally, the model creates a natural language explanation for the user to express the steps that they took during the decision-making. In the end, the natural language explanations were submitted for peer evaluation with a Likert scale form to assess the performance of the model. Based on the forms results the models explanations performed decently.
+This report will go over the development of a decision-making artificial intelligence model which is innately explainable. The model achieves this explainability by traversing a goal tree and making decisions based on the user's preference and predefined social norms. Finally, the model creates a natural language explanation for the user to explain the steps they took during the decision-making process. In the end, the natural language explanations were submitted for peer evaluation with a Likert scale form to assess the model performance. Based on the form's results the model's explanations performed decently.
 \end{abstract}
 
 
@@ -87,8 +87,7 @@ This report will go over the development of a decision-making artificial intelli
 %%
 %% Keywords. The author(s) should pick words that accurately describe
 %% the work being presented. Separate the keywords with commas.
-\keywords{Do, Not, Us, This, Code, Put, the, Correct, Terms, for,
-  Your, Paper}
+\keywords{XAI, goal-trees, natural language explanation, explanations, Likert questionnaire}
 %% A "teaser" image appears between the author and affiliation
 %% information and the body of the document, and typically spans the
 %% page.
@@ -98,25 +97,27 @@ This report will go over the development of a decision-making artificial intelli
 \maketitle
 
 \section{Introduction}
-With the popularity of Artificial Intelligence, more and more people started to use it daily. However, most people blindly trust Artificial Intelligence without knowing how it works or makes decisions. In this paper, we aim to create a model that can go through goal trees, make decisions based on user preferences, and give a natural language explanation of the decision-making process. The initial step was to create an algorithm that enumerates execution traces from a given goal tree while annotating decisions based on the given social norms. Finally, the decision-making was optimized by the user-specified preferences. Together, these algorithms ensure that our model considers both the societal norms and preferences of the user at the same time while coming up with decisions. The second step was to create natural language explanations for the decisions that the algorithm provided. This way the users can have a clear understanding of how the algorithm makes the decision. These steps will be explained in greater detail in their corresponding sections. Finally, a peer evaluation was conducted on a Likert scale questionnaire with questions about the quality of the generated explanations. 
+With the increased popularity of Artificial Intelligence, more and more people have integrated it into their daily lives. However, most people blindly trust Artificial Intelligence without knowing how it works or makes decisions. This paper aims to create a model that can go through goal trees, make decisions based on user preferences and social norms, and give a natural language explanation of the decision-making process to help the user understand. The initial step was to create an algorithm that enumerates execution traces from a given goal tree while annotating decisions based on the given social norms. Then, the decision-making is optimized by the user-specified preferences. Together, these algorithms ensure that our model considers both the societal norms and preferences of the user at the same time and integrates them into the decision process. The second step was to create natural language explanations for the decisions that the algorithm provided. This way, users can better understand how the algorithm makes its decision. These steps will be explained in greater detail in their corresponding sections. Finally, a peer evaluation was conducted on a Likert scale questionnaire with questions about the quality of the generated explanations.
+Section \ref{sec:algorithm} will explain the algorithm used to provide natural language explanations to the user. Then, Section \ref{subsec:experiments} will describe the conducted experiments, the testing process and its data collection and provide an analysis and discussion of these results. Lastly, Section \ref{sec:conclusion}
+ will give an overall conclusion.
 
 \section{Algorithm for Generating Natural Language Explanations} \label{sec:algorithm}
 
-The algorithm uses an execution trace to generate an explanation of an action the agent performed. The algorithm maps the agents' actions and the variables for said actions into human-understandable language. The execution trace can contain information about the factors that affect the action to explain. The algorithm loops over these factors and explains them in order. These factors, as shown in Algorithm~\ref{alg:nl_explanation} are: 
+The algorithm uses an execution trace to generate an explanation of actions that the agent performed. It maps the agent's actions and the variables for said actions into human-understandable language. This execution trace can contain information about the factors that affect the action to explain. The natural language algorithm loops over these factors and explains them in order. The factors, as shown in Algorithm~\ref{alg:nl_explanation} are:
 
 \begin{itemize}
     \item \textbf{Goal (D):} The goal of the agent.
     \item \textbf{Beliefs - Valid (C):} The condition under which the action is possible.
     \item \textbf{Beliefs - Failed (F):} The condition under which the action is not possible.
     \item \textbf{Preferences (V):} The agent's priorities for selecting actions.
-    \item \textbf{Norms - Obligations (O):} The required actions that the agent must follow. 
+    \item \textbf{Norms - Obligations (O):} The required actions that the agent must follow.
     \item \textbf{Norms - Prohibitions (P):} The prevented actions that the agent must avoid.
 \end{itemize}
 
 
 
-The algorithm initially describes the goal of the agent and the chosen action to take to achieve this goal, these are factor "D" and "C" as shown in the Algorithm~\ref{alg:nl_explanation}. Then, the algorithm explains if the pre-conditions to take the action are satisfied by the beliefs of the agent by utilizing the "C" factor and the "P" factor. After this is done, the algorithm explains the preferences and norms that are provided to the agent and how they fit into the decision-making process. This is done via the use of factors "V" for preferences and "P" and "O" for the norms. Later, the actions that couldn't be taken are explained with their corresponding failed condition using the factor "F". Finally, the goal and the remaining actions to take to achieve the goal are mentioned in the last sentence. 
 
+The algorithm initially describes the goal of the agent and the action taken to achieve this goal. This is achieved by using factors \textit{D}, the agent goal, and \textit{C}, the agent beliefs under which achieving the goal is possible, as shown in the Algorithm~\ref{alg:nl_explanation}. Then, the algorithm explains if the pre-conditions for taking the action are satisfied by the agent's beliefs by utilizing the \textit{C} factor and the \textit{P} factor, prohibited actions that the agent must avoid. After this is done, the algorithm explains the preferences and norms that are provided to the agent and how they fit into the decision-making process. This is done via the use of factors \textit{V} for preferences and \textit{P} and \textit{O} for the prohibited and required norms. Later, the actions that could not be taken are explained with their corresponding failed condition using the factor \textit{F}, agent beliefs under which a specific action is impossible. Finally, the goal and the remaining actions necessary to achieve the goal are mentioned in the last sentence.
 
 
 \begin{algorithm}
@@ -124,7 +125,7 @@ The algorithm initially describes the goal of the agent and the chosen action to
 \label{alg:nl_explanation}
 \Fn{\FMain{Explanation:}}{
     \KwData{sentences, used\_conditions, used\_plans, chosen\_option, ordered\_prefs, final\_summary}
-    
+
     \ForEach{factor in explanation\_factors}{
         \eIf{factor type == "D"}{
             \If{factor is "getCoffee"} {main\_goal = "get a coffee"}
@@ -147,13 +148,13 @@ The algorithm initially describes the goal of the agent and the chosen action to
 
     \If{main\_goal and chosen\_option} {final\_summary.append("Agent wants to " + main\_goal + " and decided to " + chosen\_option)}
     \If{precondition\_in\_C} {final\_summary.append(precondition\_in\_C)}
-    
+
     \KwRet{final\_summary}
 }
 \end{algorithm}
 
 \section{Experiments} \label{subsec:experiments}
-This section will give a detailed explanation of the experiments conducted to evaluate the algorithm presented in section \ref{sec:algorithm} in section \ref{subsec:Experimentation}, then present the corresponding results in section \ref{subsec:Results} and finally discuss the presented results in section \ref{subsec:discussion}.
+This section will give a detailed explanation of the experiments conducted to evaluate the algorithm outlined in Section \ref{sec:algorithm} in Section \ref{subsec:Experimentation}, then present the corresponding results in Section \ref{subsec:Results} and finally discuss the presented results in Section \ref{subsec:discussion}.
 
 \subsection{Experimentation Setup} \label{subsec:Experimentation}
 
@@ -161,8 +162,7 @@ To evaluate the algorithm presented in Section \ref{sec:algorithm}, a user surve
 
 Participants were asked to evaluate $5$ different natural language explanations that were generated using the previously described algorithm and a predefined input. For each explanation, participants were asked to evaluate 6 questions (seen in Table \ref{tab:questions}) on a 5-point Likert scale, ranging from 1 (strongly disagree) to 5 (strongly agree). The users were provided both a description of a scenario (following a pre-defined template) and the corresponding explanations.
 
-Each of the questions provided is used to evaluate different criteria for human explanations:
-
+Each of the questions provided is used to evaluate different criteria for human explanations, which can be seen in Table \ref{tab:questions}.
 
 %%%%%%%%%%%%
 
@@ -184,8 +184,6 @@ Each of the questions provided is used to evaluate different criteria for human 
     \label{tab:questions}
 \end{table}
 
-
-This is further supported by the comments provided by the users, where many users mentioned the need for grammar improvement and easier flow of the natural language, and focusing more on only important information to the user in the given explanation. Positively users remarked that the explanations were easy to follow, clear, and concise.
 
 
 \subsection{Results} \label{subsec:Results}
@@ -245,14 +243,17 @@ Please note that in the questionnaire a Likert scale evaluation was administered
 
 It can clearly be seen that ratings of $1$ or $2$ are the least common answers, the most common being $4$ and $5$. This is also shown in the mean and mode values. Overall, this shows that the provided natural language explanations were satisfactory to the users, but there are some areas in which they can be improved.
 
+This is further supported by the comments provided by the users, where many users mentioned the need for grammar improvement and easier flow of the natural language, and focusing more on only important information to the user in the given explanation. Positively users remarked that the explanations were easy to follow, clear, and concise.
 
 Through the mean, mode, and median values one can see that the areas with the most need for improvement are those tested through Q1, Q6, and Q3, more specifically the following criteria: Transparency, Satisfaction, and Sufficiency.
 
+
 \subsection{Discussion} \label{subsec:discussion}
-As mentioned in previous sections, the decision-making model uses natural language to generate explanations for its decisions, and these explanations were evaluated by peer feedback in a Likert scale form. Firstly, one of the key observations from the user feedback is that the generated natural language explanation could be improved in terms of fluency and narrative coherence. The feedback shows that, while the model was informative, the information was fragmented too much, which affected the flow and clarity of the explanation, making it hard for users to understand and piece information together. The feedback also pointed out that the structure of the reasoning made it difficult to comprehend how the model came up with the decisions. Another common problem was that the feedback suggests the repetition of the norms and preferences is redundant. Finally, some of the feedback suggested that the tone of the explanation was too technical, which made it hard to follow. The suggestion was to implement a more realistic and relatable narrative. However, a concern is that this might induce unnecessary text and overcrowd or complicate the explanation even more. As seen by these remarks and comments, the natural explanations could be improved to achieve a more fluent, consistent, and human-like explanation. In the future, the mentioned problems could be improved on to achieve a better structured and more natural-sounding explanation. Furthermore, more feedback could be received from a more diverse crowd to see how the explanation appeals to different groups of people. 
+As mentioned in previous sections, the decision-making model uses natural language to generate explanations for its decisions. These explanations were evaluated by peer feedback in a Likert scale form. Firstly, one of the key observations from the user feedback is that the generated natural language explanation could be improved in terms of fluency and narrative coherence. The feedback shows that, while the model was informative, the information was fragmented too much, which affected the flow and clarity of the explanation, making it hard for users to understand and piece information together. The feedback also pointed out that the structure of the given explanation and its reasoning made it hard to comprehend how the model came up with its decisions. Another common problem was that the feedback suggests that repeating norms and preferences is redundant. Finally, some of the feedback suggested that the tone of the explanation was too technical, which made it hard to follow. The suggestion was to implement a more realistic and relatable narrative. However, a concern is that this might induce unnecessary text and overcrowd or complicate the explanations even more. Overall, the explanations were found satisfactory by the users and helped their understanding of the process, as seen in both the commentary and Likert scale data. As seen by these remarks and comments, the natural explanations could be improved to achieve a more fluent, consistent, and human-like explanation. In the future, the mentioned problems could be improved on to achieve a better structured and more natural-sounding explanation. Furthermore, more feedback could be received from a more diverse crowd to see how the explanation appeals to different groups of people.
 
 \section{Conclusion} \label{sec:conclusion}
-To conclude, this study focuses on a decision-making models and explainability using natural language explanations. This is a important way that we could achieve more transparent and understandable AI models. Although the model can traverse goal tree and come up with a natural language explanation, the peer feedback conveyed some areas of the model needs improvements such as clarity of explanation and structure of explanation. These kinds of feedback suggest for further development of the model to achieve a more clear, natural and structured explanations. Future work should focus on enhancing these kinds of problems and implementing these explanations to not only decision specific model but for majority of AI models. Additionally, gathering more feedback from a more diverse group could reveal more about what to improve in the explanations to make them more accessible and informative. With these kinds of improvements the model should be able to connect complex algorithmic decision-making and user-friendly, transparent communication.
+
+To conclude, this study focuses on a decision-making model and its explainability using natural language explanations. This is an essential method for achieving more transparent and understandable AI models. Although the presented model can traverse the goal tree and come up with a natural language explanation and was found to be satisfactory, the peer feedback conveyed some areas where the model could be improved such as clarity and structure of explanations. This suggests that the explanations should be given in a clearer, more natural and structured manner to help the user understand and provide them with a better user experience. Future work should focus on enhancing these kinds of problems and implementing these explanations to not only decision-specific models but for a variety of AI models. Additionally, gathering more feedback from a more diverse group could reveal more about what to improve in the explanations to make them more accessible and informative. With these kinds of improvements, the model should be able to connect complex algorithmic decision-making and user-friendly, transparent communication.
 
 \newpage
 \appendix
@@ -425,16 +426,6 @@ out if you have it." \\
 % Return to two-column mode
 \twocolumn
 
-
-
-%%
-%% The acknowledgments section is defined using the "acks" environment
-%% (and NOT an unnumbered section). This ensures the proper
-%% identification of the section in the article metadata, and the
-%% consistent spelling of the heading.
-\begin{acks}
-To Robert, for the bagels and explaining CMYK and color spaces.
-\end{acks}
 
 %%
 %% The next two lines define the bibliography style to be used, and
